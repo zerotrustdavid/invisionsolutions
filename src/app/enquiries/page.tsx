@@ -30,7 +30,7 @@ export default function EnquiriesPage() {
           </h1>
           <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate">
             Each form below goes to its own mailbox, so your enquiry lands where
-            it belongs instead of queueing behind everything else. It still
+            it belongs instead of queuing behind everything else. It still
             reaches David — this only decides which inbox it arrives in.
           </p>
         </Reveal>

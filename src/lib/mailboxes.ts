@@ -82,6 +82,24 @@ export const MAILBOXES: Mailbox[] = [
   },
 ];
 
+/**
+ * The key the /contact form uses.
+ *
+ * It reuses the contact desk's form rather than reading the general key
+ * directly, because every mailbox above has its own key set in production. That
+ * means the `?? GENERAL` fallbacks never fire, and the general key was left
+ * exercised by exactly one page: /contact. A fault in it was therefore invisible
+ * on /enquiries, which is how the contact form came to fail while all seven
+ * enquiry forms passed.
+ *
+ * Pointing /contact at the contact desk removes that blind spot. The form it
+ * submits to is now the same one /enquiries exercises on every test, and it
+ * delivers to PUBLIC_CONTACT_ADDRESS below, which is the address the contact
+ * page already gives out.
+ */
+export const CONTACT_ACCESS_KEY =
+  MAILBOXES.find((box) => box.slug === "contact")?.accessKey ?? GENERAL;
+
 /** Address shown in the footer and as the general-purpose public address. */
 export const PUBLIC_CONTACT_ADDRESS = "contact@invisionsolutions.co.uk";
 export const SALES_ADDRESS = "sales@invisionsolutions.co.uk";
