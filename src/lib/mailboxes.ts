@@ -21,6 +21,8 @@ export type Mailbox = {
   label: string;
   description: string;
   accessKey: string | undefined;
+  /** The variable this mailbox's key comes from, for diagnostics. */
+  keyName: string;
 };
 
 const GENERAL = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
@@ -33,6 +35,7 @@ export const MAILBOXES: Mailbox[] = [
     description:
       "Day rates, retainer pricing, and what a given scope is likely to cost.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_SALES ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_SALES",
   },
   {
     slug: "contact",
@@ -41,6 +44,7 @@ export const MAILBOXES: Mailbox[] = [
     description:
       "Anything that does not fit the other routes — including introductions.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_CONTACT ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_CONTACT",
   },
   {
     slug: "support",
@@ -49,6 +53,7 @@ export const MAILBOXES: Mailbox[] = [
     description:
       "Existing engagements: questions on delivered work, handover, or documentation.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_SUPPORT ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_SUPPORT",
   },
   {
     slug: "billing",
@@ -56,6 +61,7 @@ export const MAILBOXES: Mailbox[] = [
     label: "Billing",
     description: "Payment terms, purchase orders, and billing arrangements.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_BILLING ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_BILLING",
   },
   {
     slug: "invoice",
@@ -63,6 +69,7 @@ export const MAILBOXES: Mailbox[] = [
     label: "Invoices",
     description: "Invoice queries, copies, remittance advice, and corrections.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_INVOICE ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_INVOICE",
   },
   {
     slug: "admin",
@@ -71,6 +78,7 @@ export const MAILBOXES: Mailbox[] = [
     description:
       "Supplier onboarding, NDAs, insurance certificates, and compliance paperwork.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_ADMIN ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_ADMIN",
   },
   {
     slug: "hello",
@@ -79,6 +87,7 @@ export const MAILBOXES: Mailbox[] = [
     description:
       "Collaborations, speaking, podcasts, and anything media-related.",
     accessKey: process.env.NEXT_PUBLIC_WEB3FORMS_KEY_HELLO ?? GENERAL,
+    keyName: "NEXT_PUBLIC_WEB3FORMS_KEY_HELLO",
   },
 ];
 
@@ -99,6 +108,10 @@ export const MAILBOXES: Mailbox[] = [
  */
 export const CONTACT_ACCESS_KEY =
   MAILBOXES.find((box) => box.slug === "contact")?.accessKey ?? GENERAL;
+
+/** Named in the error state when CONTACT_ACCESS_KEY resolves to nothing. */
+export const CONTACT_KEY_NAME =
+  "NEXT_PUBLIC_WEB3FORMS_KEY_CONTACT (or NEXT_PUBLIC_WEB3FORMS_KEY)";
 
 /** Address shown in the footer and as the general-purpose public address. */
 export const PUBLIC_CONTACT_ADDRESS = "contact@invisionsolutions.co.uk";

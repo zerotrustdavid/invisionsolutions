@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { Reveal } from "@/components/reveal";
 import { Web3Form, type Field } from "@/components/web3forms";
 import { Section, Eyebrow } from "@/components/ui";
-import { CONTACT_ACCESS_KEY } from "@/lib/mailboxes";
+import { CONTACT_ACCESS_KEY, CONTACT_KEY_NAME } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -64,6 +64,7 @@ export default function ContactPage() {
         <Reveal delay={0.1}>
           <Web3Form
             accessKey={CONTACT_ACCESS_KEY}
+            keyName={CONTACT_KEY_NAME}
             subject="New enquiry — Invision Solutions website"
             fields={FIELDS}
             successBody="Thanks — your message has been sent. David will get back to you directly."

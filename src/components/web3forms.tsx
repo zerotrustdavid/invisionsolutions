@@ -45,6 +45,7 @@ const inputClass =
  */
 function Web3Form({
   accessKey,
+  keyName,
   subject,
   fields,
   submitLabel = "Send message",
@@ -53,6 +54,12 @@ function Web3Form({
   compact = false,
 }: {
   accessKey: string | undefined;
+  /**
+   * The environment variable this form's key comes from. Shown only when the
+   * key is missing, because the usual reason for that is a variable created
+   * under a name nothing reads. Naming it turns a dead end into a one-line fix.
+   */
+  keyName?: string;
   subject: string;
   fields: Field[];
   submitLabel?: string;
@@ -76,8 +83,8 @@ function Web3Form({
 
     if (!key) {
       console.error(
-        "[web3forms] No access key available for this form. NEXT_PUBLIC_ variables " +
-          "are inlined at BUILD time, so setting one after a build requires a redeploy.",
+        `[web3forms] No access key for this form (expected ${keyName ?? "a NEXT_PUBLIC_WEB3FORMS_KEY* variable"}). ` +
+          "NEXT_PUBLIC_ variables are inlined at BUILD time, so setting one after a build requires a redeploy.",
       );
       setFailure({ kind: "unconfigured" });
       setStatus("error");
@@ -116,7 +123,9 @@ function Web3Form({
 
   const reason =
     failure?.kind === "unconfigured"
-      ? "This form is not configured on this deployment, so nothing was sent. Please use the email address above."
+      ? `This form is not configured on this deployment, so nothing was sent. Please use the email address above.${
+          keyName ? ` (Missing ${keyName}.)` : ""
+        }`
       : failure?.kind === "unreachable"
         ? "The form service could not be reached. A privacy or ad blocker will sometimes block it, so it is worth retrying with one paused."
         : failure?.detail

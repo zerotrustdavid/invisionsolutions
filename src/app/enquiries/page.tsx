@@ -55,6 +55,7 @@ export default function EnquiriesPage() {
                   <Web3Form
                     compact
                     accessKey={box.accessKey}
+                    keyName={box.keyName}
                     subject={`${box.label} — Invision Solutions website`}
                     fields={FIELDS}
                     submitLabel="Send"
