@@ -31,8 +31,21 @@ type Status = "idle" | "submitting" | "success" | "error";
  */
 type Failure =
   | { kind: "unconfigured" }
+  | { kind: "malformed"; got: string }
   | { kind: "rejected"; detail?: string }
   | { kind: "unreachable" };
+
+/**
+ * Web3Forms access keys are UUIDs. Checking the shape before submitting
+ * separates "the build never received a usable key" from "the service said no",
+ * which otherwise look identical from outside.
+ *
+ * The value reaching the browser is not always the value that was typed into
+ * the hosting dashboard: a NEXT_PUBLIC_ variable is inlined into the bundle at
+ * build time, so anything that rewrites or withholds it during the build
+ * arrives here as a placeholder rather than a key.
+ */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-line bg-paper px-4 py-3 text-sm text-ink placeholder:text-slate/70 outline-none transition-colors focus-visible:border-gold-ink";
@@ -91,6 +104,19 @@ function Web3Form({
       return;
     }
 
+    if (!UUID.test(key)) {
+      // Safe to show: a value that is not a UUID is not a working key, so it
+      // is a placeholder rather than a credential, and seeing it is the whole
+      // point. A valid key is never printed.
+      console.error(
+        `[web3forms] ${keyName ?? "The access key"} reached the browser as ` +
+          `"${key}" (${key.length} chars), which is not a valid key.`,
+      );
+      setFailure({ kind: "malformed", got: key });
+      setStatus("error");
+      return;
+    }
+
     const formData = new FormData(form);
     formData.append("access_key", key);
     formData.append("subject", subject);
@@ -126,6 +152,8 @@ function Web3Form({
       ? `This form is not configured on this deployment, so nothing was sent. Please use the email address above.${
           keyName ? ` (Missing ${keyName}.)` : ""
         }`
+      : failure?.kind === "malformed"
+        ? `The access key in this build is not a valid key. It arrived as "${failure.got}" (${failure.got.length} characters), so ${keyName ?? "the variable"} was not exposed to the build intact.`
       : failure?.kind === "unreachable"
         ? "The form service could not be reached. A privacy or ad blocker will sometimes block it, so it is worth retrying with one paused."
         : failure?.detail
