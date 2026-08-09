@@ -73,6 +73,25 @@ The forms submit client-side from the browser, which is the path the site actual
 
 Server-side calls to the API (curl, scripts, CI) are rejected with *"This method is not allowed... Pro plan is required"* unless the calling IP is whitelisted by Web3Forms support. That restriction applies only to non-browser callers and never affects the website forms.
 
+### When a submission fails
+
+The form names the cause on screen, so a screenshot of the failure is enough to tell these apart without asking anyone to open a browser console:
+
+- **"not configured on this deployment"** means the build has no access key, so nobody can submit. Check the Vercel environment variable, then **redeploy**, because `NEXT_PUBLIC_` values are inlined at build time.
+- **"the form service rejected it: ..."** means the request reached Web3Forms and it declined. Its own message names the reason: domain restriction, quota, or an unverified recipient.
+- **"could not be reached"** means the request never arrived. A privacy or ad blocker blocking `api.web3forms.com` is the usual cause, which is why this one can fail for a single visitor while working for everyone else.
+
+To confirm a key actually made it into the deployed bundle, which the page HTML will not show because the key lives in a JS chunk:
+
+```bash
+curl -s https://www.invisionsolutions.co.uk/contact \
+  | grep -oE '/_next/static/chunks/[^"]+\.js' | sort -u \
+  | while read -r p; do curl -s "https://www.invisionsolutions.co.uk$p"; done \
+  | grep -oiE '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}' | sort -u
+```
+
+No output means no key reached the build.
+
 ## Brand
 
 The mark is a cloud drawn as one continuous line: the stroke traces the silhouette in gold, runs back along the base, then turns inward in deep gold and stops.

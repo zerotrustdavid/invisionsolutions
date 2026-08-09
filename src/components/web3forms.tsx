@@ -15,6 +15,25 @@ export type Field = {
 
 type Status = "idle" | "submitting" | "success" | "error";
 
+/**
+ * Why a submission failed. Three causes previously collapsed into one message,
+ * which meant the only way to tell them apart was the browser console: no use
+ * to a visitor, and no use in a screenshot of the failure.
+ *
+ * They need different actions, so they now say different things:
+ *   unconfigured - the build has no access key. Nobody can submit. Mine to fix.
+ *   rejected     - the request reached Web3Forms and it said no. Its own
+ *                  message is shown, since that names the actual cause
+ *                  (domain restriction, quota, unverified recipient).
+ *   unreachable  - the request never arrived. Usually a privacy or ad blocker
+ *                  blocking api.web3forms.com, which is why this can fail for
+ *                  one visitor while working for everyone else.
+ */
+type Failure =
+  | { kind: "unconfigured" }
+  | { kind: "rejected"; detail?: string }
+  | { kind: "unreachable" };
+
 const inputClass =
   "mt-2 w-full rounded-lg border border-line bg-paper px-4 py-3 text-sm text-ink placeholder:text-slate/70 outline-none transition-colors focus-visible:border-gold-ink";
 
@@ -42,10 +61,12 @@ function Web3Form({
   compact?: boolean;
 }) {
   const [status, setStatus] = useState<Status>("idle");
+  const [failure, setFailure] = useState<Failure | null>(null);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setStatus("submitting");
+    setFailure(null);
 
     const form = event.currentTarget;
     // Trim defensively: values pasted into a hosting dashboard commonly pick up
@@ -56,8 +77,9 @@ function Web3Form({
     if (!key) {
       console.error(
         "[web3forms] No access key available for this form. NEXT_PUBLIC_ variables " +
-          "are inlined at BUILD time — setting one after a build requires a redeploy.",
+          "are inlined at BUILD time, so setting one after a build requires a redeploy.",
       );
+      setFailure({ kind: "unconfigured" });
       setStatus("error");
       return;
     }
@@ -79,13 +101,27 @@ function Web3Form({
         form.reset();
       } else {
         console.error("[web3forms] Rejected the submission:", result.message);
+        setFailure({ kind: "rejected", detail: result.message });
         setStatus("error");
       }
     } catch (error) {
-      console.error("[web3forms] Request failed:", error);
+      // fetch only rejects when the request never completed: offline, DNS,
+      // CORS, or an extension blocking the endpoint. A rejection by the service
+      // resolves normally and is handled above.
+      console.error("[web3forms] Could not reach api.web3forms.com:", error);
+      setFailure({ kind: "unreachable" });
       setStatus("error");
     }
   }
+
+  const reason =
+    failure?.kind === "unconfigured"
+      ? "This form is not configured on this deployment, so nothing was sent. Please use the email address above."
+      : failure?.kind === "unreachable"
+        ? "The form service could not be reached. A privacy or ad blocker will sometimes block it, so it is worth retrying with one paused."
+        : failure?.detail
+          ? `The form service rejected it: ${failure.detail}`
+          : null;
 
   if (status === "success") {
     return (
@@ -168,16 +204,21 @@ function Web3Form({
       </div>
 
       {status === "error" && (
-        <p className="mt-4 text-sm text-red-700">
-          Something went wrong sending that. Please try again, or email{" "}
-          <a
-            href="mailto:contact@invisionsolutions.co.uk"
-            className="underline underline-offset-4"
-          >
-            contact@invisionsolutions.co.uk
-          </a>{" "}
-          directly.
-        </p>
+        <div className="mt-4" role="alert" aria-live="polite">
+          <p className="text-sm text-red-700">
+            Something went wrong sending that. Please try again, or email{" "}
+            <a
+              href="mailto:contact@invisionsolutions.co.uk"
+              className="underline underline-offset-4"
+            >
+              contact@invisionsolutions.co.uk
+            </a>{" "}
+            directly.
+          </p>
+          {/* The specific cause, so a screenshot of the failure is enough to
+              diagnose it without asking anyone to open a browser console. */}
+          {reason && <p className="mt-1.5 text-xs text-slate">{reason}</p>}
+        </div>
       )}
 
       <button
