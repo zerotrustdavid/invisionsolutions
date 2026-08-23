@@ -90,16 +90,38 @@ jobs:
       #                       a bare UUID carries too little entropy to trip a
       #                       generic detector.
       #
-      # A malformed config makes gitleaks panic while still exiting 0, so the
-      # config is loaded in a check that fails loudly first.
+      # On exit codes, all measured rather than assumed:
+      #
+      #   0  clean
+      #   1  findings, AND ALSO a config TOML that failed to parse
+      #   2  panic, e.g. a regex Go's RE2 engine cannot compile
+      #
+      # The overlap on 1 is the trap. A config that does not parse aborts with
+      # "FTL unable to load gitleaks config" and exits 1, which is
+      # indistinguishable by exit code from a scan that ran and found something.
+      # Exit code alone cannot separate "found a key" from "never scanned".
+      #
+      # So this step matches the diagnostic text as well as the code, and runs
+      # before the full-history scan so a config fault is named as one.
+      #
+      # Note the deliberate absence of `set -e` and of a pipeline. An earlier
+      # version piped gitleaks into `grep -q "panic:"` under `set -o pipefail`.
+      # grep matched, but pipefail returned gitleaks' exit 2 rather than grep's
+      # 0, so the `if` read false and the step passed on a config that did not
+      # compile. Capture first, then test.
       - name: Validate the gitleaks config loads
         run: |
-          set -euo pipefail
-          if ./gitleaks git . --log-opts="-1" -c .gitleaks.toml 2>&1 | grep -q "panic:"; then
-            echo "gitleaks panicked loading .gitleaks.toml. It exits 0 when it does, so this would otherwise read as a clean scan."
-            ./gitleaks git . --log-opts="-1" -c .gitleaks.toml 2>&1 | head -20
+          set -uo pipefail
+          out=$(./gitleaks git . --log-opts="-1" -c .gitleaks.toml 2>&1)
+          rc=$?
+          if [ "$rc" -ge 2 ] \
+             || printf '%s' "$out" | grep -q "panic:" \
+             || printf '%s' "$out" | grep -qi "unable to load gitleaks config"; then
+            echo "::error::gitleaks could not load .gitleaks.toml (exit $rc). The scan below would not have run."
+            printf '%s\n' "$out" | head -20
             exit 1
           fi
+          echo "Config loads cleanly. gitleaks exit $rc (0 = no findings, 1 = findings)."
 
       - name: Scan full history
         run: ./gitleaks git . --log-opts="--all" -c .gitleaks.toml -v --redact
