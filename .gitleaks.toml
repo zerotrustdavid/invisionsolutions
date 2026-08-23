@@ -1,0 +1,71 @@
+# gitleaks configuration for invision-solutions-website
+title = "invision-solutions-website"
+
+[extend]
+useDefault = true
+
+# Why this file exists at all.
+#
+# The credential class this repository actually handles is the Web3Forms access
+# key: a bare UUID. gitleaks 8.21.2, run correctly across full history with
+# --log-opts="--all", exits clean on a repository containing a live one. So does
+# GitHub's own secret scanning. Neither is broken; a bare UUID simply carries too
+# little entropy and no distinguishing prefix for a generic detector to flag it
+# without drowning the output in false positives.
+#
+# That means the default rule set cannot be the control here. These two rules are.
+
+[[rules]]
+id = "web3forms-access-key-assigned"
+description = "UUID assigned to an identifier that names it as a key, token or secret"
+regex = '''(?i)(access[_-]?key|api[_-]?key|secret|token|web3forms)[^\n]{0,40}?['"=:\s]([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})'''
+secretGroup = 2
+tags = ["web3forms", "uuid"]
+
+# The rule above is the readable one. The rule below is the one that works.
+#
+# On the sibling PayReckon repository the leaked key was assigned to a constant
+# called VALID, in a test file. An identifier-based rule matches nothing there.
+# Any bare UUID literal in source is therefore treated as a finding and must be
+# either allowlisted as an obvious dummy or dealt with as real.
+#
+# This is noisier by design. A false positive costs one allowlist entry. A false
+# negative costs a live form.
+[[rules]]
+id = "bare-uuid-literal"
+description = "Bare UUID literal in source, treated as a possible access key"
+regex = '''[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}'''
+tags = ["uuid", "backstop"]
+
+[rules.allowlist]
+regexTarget = "match"
+regexes = [
+  # Placeholder keys used in documentation and in local reproduction runs. Each
+  # is a single repeated nibble, which no real key will ever be. Written as an
+  # explicit alternation because Go's RE2 engine has no backreferences: the
+  # obvious ([0-9a-f])\1{7}... form compiles everywhere except here, and
+  # gitleaks panics on it while still exiting 0.
+  '''(?i)^(?:0{8}-0{4}-0{4}-0{4}-0{12}|1{8}-1{4}-1{4}-1{4}-1{12}|2{8}-2{4}-2{4}-2{4}-2{12}|3{8}-3{4}-3{4}-3{4}-3{12}|4{8}-4{4}-4{4}-4{4}-4{12}|5{8}-5{4}-5{4}-5{4}-5{12}|6{8}-6{4}-6{4}-6{4}-6{12}|7{8}-7{4}-7{4}-7{4}-7{12}|8{8}-8{4}-8{4}-8{4}-8{12}|9{8}-9{4}-9{4}-9{4}-9{12}|a{8}-a{4}-a{4}-a{4}-a{12}|b{8}-b{4}-b{4}-b{4}-b{12}|c{8}-c{4}-c{4}-c{4}-c{12}|d{8}-d{4}-d{4}-d{4}-d{12}|e{8}-e{4}-e{4}-e{4}-e{12}|f{8}-f{4}-f{4}-f{4}-f{12})$''',
+  # RFC 4122 example UUIDs.
+  '''(?i)^(123e4567-e89b-12d3-a456-426614174000|xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)$''',
+]
+
+[allowlist]
+description = "Paths that are build output, vendored code, or this config itself"
+paths = [
+  '''^\.next/''',
+  '''^node_modules/''',
+  '''^\.git/''',
+  '''^out/''',
+  '''^coverage/''',
+  '''^package-lock\.json$''',
+  '''^\.gitleaks\.toml$''',
+  # Binary font instances. They are not source and cannot hold a pasted key.
+  '''^src/app/_fonts/.*\.ttf$''',
+  '''^public/brand/.*\.(png|svg)$''',
+]
+
+# Without the .next/ and node_modules/ exclusions above, `gitleaks dir` walks
+# build output and vendored packages and buries any real finding in thousands of
+# hits from minified bundles. That is not hypothetical: it is why a scan of this
+# shape was previously read as clean.
