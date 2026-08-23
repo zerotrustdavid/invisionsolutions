@@ -45,7 +45,7 @@ regexes = [
   # explicit alternation because Go's RE2 engine has no backreferences: the
   # obvious ([0-9a-f])\1{7}... form compiles everywhere except here, and makes
   # gitleaks panic on config load (exit 2) rather than scanning anything.
-  '''(?i)^(?:0{8}-0{4}-0{4}-0{4}-0{12}|1{8}-1{4}-1{4}-1{4}-1{12}|2{8}-2{4}-2{4}-2{4}-2{12}|3{8}-3{4}-3{4}-3{4}-3{12}|4{8}-4{4}-4{4}-4{4}-4{12}|5{8}-5{4}-5{4}-5{4}-5{12}|6{8}-6{4}-6{4}-6{4}-6{12}|7{8}-7{4}-7{4}-7{4}-7{12}|8{8}-8{4}-8{4}-8{4}-8{12}|9{8}-9{4}-9{4}-9{4}-9{12}|a{8}-a{4}-a{4}-a{4}-a{12}|b{8}-b{4}-b{4}-b{4}-b{12}|c{8}-c{4}-c{4}-c{4}-c{12}|d{8}-d{4}-d{4}-d{4}-d{12}|e{8}-e{4}-e{4}-e{4}-e{12}|f{8}-f{4}-f{4}-f{4}-f{12})$''',
+  '''(?i)^([0-9a-f])\1{7}-\1{4}-\1{4}-\1{4}-\1{12}$''',
   # RFC 4122 example UUIDs.
   '''(?i)^(123e4567-e89b-12d3-a456-426614174000|xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx)$''',
 ]
