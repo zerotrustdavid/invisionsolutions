@@ -1,0 +1,127 @@
+name: CI
+
+# Deliberately `pull_request`, never `pull_request_target`.
+#
+# `pull_request_target` runs with the base repository's token and secrets while
+# checking out the fork's code, which hands write-scoped credentials to a
+# contributor's branch. This workflow has no need for that and must not acquire
+# one: it reads code, it does not write to the repository.
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# Read-only. Nothing here comments, labels, pushes, or publishes.
+permissions:
+  contents: read
+
+# No secrets are referenced anywhere in this file. The only credential this
+# project handles is a publishable Web3Forms key, and none of these jobs need it:
+# `next build` succeeds without it, and the resulting bundle simply reports the
+# form as unconfigured.
+
+env:
+  # Pinned by version and verified against a pinned digest below. Fetched
+  # directly rather than through a third-party action, so nothing outside this
+  # file decides what runs.
+  GITLEAKS_VERSION: "8.21.2"
+  GITLEAKS_SHA256: "5bc41815076e6ed6ef8fbecc9d9b75bcae31f39029ceb55da08086315316e3ba"
+
+jobs:
+  build:
+    name: Lint, build, install-script check
+    runs-on: ubuntu-latest
+    steps:
+      # First-party GitHub actions, pinned to major version tags. Pinning to a
+      # full commit SHA is stronger and is worth doing; it is not claimed here
+      # because it has not been done.
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # --ignore-scripts is the point of this step, not an optimisation.
+      # Dependency install scripts run arbitrary code before any project code
+      # does, which is the mechanism behind most npm supply-chain compromises.
+      #
+      # This does NOT close the deploy path. Vercel runs its own install, and
+      # that install command has to be set separately in the project settings.
+      - name: Install
+        run: npm ci --ignore-scripts
+
+      - name: Check dependency install scripts
+        run: npm run check:install-scripts
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Build
+        run: npm run build
+
+  secrets:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Full history. A scan of the default shallow checkout only sees the
+          # tip commit, which is how a credential committed and later removed
+          # goes on passing CI forever.
+          fetch-depth: 0
+
+      - name: Fetch gitleaks and verify its digest
+        run: |
+          set -euo pipefail
+          url="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -sSfL -o gitleaks.tar.gz "$url"
+          echo "${GITLEAKS_SHA256}  gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf gitleaks.tar.gz gitleaks
+          chmod +x gitleaks
+          ./gitleaks version
+
+      # Two things this scan depends on, both easy to get wrong silently:
+      #
+      #   --log-opts="--all"  scans every ref, not just the current branch.
+      #   -c .gitleaks.toml   loads the bare-UUID backstop rule. Without it the
+      #                       default rule set alone returns a clean result on a
+      #                       repository containing a live Web3Forms key, because
+      #                       a bare UUID carries too little entropy to trip a
+      #                       generic detector.
+      #
+      # On exit codes, all measured rather than assumed:
+      #
+      #   0  clean
+      #   1  findings, AND ALSO a config TOML that failed to parse
+      #   2  panic, e.g. a regex Go's RE2 engine cannot compile
+      #
+      # The overlap on 1 is the trap. A config that does not parse aborts with
+      # "FTL unable to load gitleaks config" and exits 1, which is
+      # indistinguishable by exit code from a scan that ran and found something.
+      # Exit code alone cannot separate "found a key" from "never scanned".
+      #
+      # So this step matches the diagnostic text as well as the code, and runs
+      # before the full-history scan so a config fault is named as one.
+      #
+      # Note the deliberate absence of `set -e` and of a pipeline. An earlier
+      # version piped gitleaks into `grep -q "panic:"` under `set -o pipefail`.
+      # grep matched, but pipefail returned gitleaks' exit 2 rather than grep's
+      # 0, so the `if` read false and the step passed on a config that did not
+      # compile. Capture first, then test.
+      - name: Validate the gitleaks config loads
+        run: |
+          set -uo pipefail
+          out=$(./gitleaks git . --log-opts="-1" -c .gitleaks.toml 2>&1)
+          rc=$?
+          if [ "$rc" -ge 2 ] \
+             || printf '%s' "$out" | grep -q "panic:" \
+             || printf '%s' "$out" | grep -qi "unable to load gitleaks config"; then
+            echo "::error::gitleaks could not load .gitleaks.toml (exit $rc). The scan below would not have run."
+            printf '%s\n' "$out" | head -20
+            exit 1
+          fi
+          echo "Config loads cleanly. gitleaks exit $rc (0 = no findings, 1 = findings)."
+
+      - name: Scan full history
+        run: ./gitleaks git . --log-opts="--all" -c .gitleaks.toml -v --redact
