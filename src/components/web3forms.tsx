@@ -96,8 +96,7 @@ function Web3Form({
 
     if (!key) {
       console.error(
-        `[web3forms] No access key for this form (expected ${keyName ?? "a NEXT_PUBLIC_WEB3FORMS_KEY* variable"}). ` +
-          "NEXT_PUBLIC_ variables are inlined at BUILD time, so setting one after a build requires a redeploy.",
+        "[web3forms] Form access key is missing. NEXT_PUBLIC_ variables are inlined at build time; redeploy after configuration changes.",
       );
       setFailure({ kind: "unconfigured" });
       setStatus("error");
@@ -105,10 +104,7 @@ function Web3Form({
     }
 
     if (!UUID.test(key)) {
-      console.error(
-        `[web3forms] ${keyName ?? "The access key"} reached the browser with invalid format ` +
-          `(${key.length} chars).`,
-      );
+      console.error("[web3forms] Form access key format is invalid.");
       setFailure({ kind: "malformed", got: key });
       setStatus("error");
       return;
