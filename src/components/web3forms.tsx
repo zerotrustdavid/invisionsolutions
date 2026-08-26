@@ -105,12 +105,9 @@ function Web3Form({
     }
 
     if (!UUID.test(key)) {
-      // Safe to show: a value that is not a UUID is not a working key, so it
-      // is a placeholder rather than a credential, and seeing it is the whole
-      // point. A valid key is never printed.
       console.error(
-        `[web3forms] ${keyName ?? "The access key"} reached the browser as ` +
-          `"${key}" (${key.length} chars), which is not a valid key.`,
+        `[web3forms] ${keyName ?? "The access key"} reached the browser with invalid format ` +
+          `(${key.length} chars).`,
       );
       setFailure({ kind: "malformed", got: key });
       setStatus("error");
