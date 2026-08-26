@@ -31,9 +31,24 @@ type Status = "idle" | "submitting" | "success" | "error";
  */
 type Failure =
   | { kind: "unconfigured" }
-  | { kind: "malformed"; got: string }
+  | { kind: "malformed"; shape: KeyShape }
   | { kind: "rejected"; detail?: string }
   | { kind: "unreachable" };
+
+/**
+ * What a rejected key looked like, without being the key.
+ *
+ * The diagnostic value is in telling apart empty, whitespace-padded,
+ * placeholder text and truncated. All four are identifiable from length,
+ * character class and a masked rendering, none of which require printing the
+ * value itself.
+ */
+type KeyShape = {
+  length: number;
+  trimmedWhitespace: boolean;
+  masked: string;
+  note: string;
+};
 
 /**
  * Web3Forms access keys are UUIDs. Checking the shape before submitting
@@ -46,6 +61,59 @@ type Failure =
  * arrives here as a placeholder rather than a key.
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Describe a value that failed the UUID check, without reproducing it.
+ *
+ * This exists because the previous version printed the value in full, on the
+ * reasoning that anything failing an anchored UUID test is a placeholder rather
+ * than a credential. That does not hold. A **valid key with a stray character
+ * appended** survives `trim()`, fails the anchored test, and was then printed
+ * whole, real key included. Narrow, but real, and the comment asserting it was
+ * impossible was worse than no comment.
+ *
+ * Masking keeps every distinction the diagnostic actually needs:
+ *
+ *   empty              length 0, nothing was inlined
+ *   whitespace-padded  trimmedWhitespace true, the dashboard value has stray
+ *                      characters around it
+ *   placeholder text   not hex-and-dashes, so something rewrote the value
+ *   truncated          hex-and-dashes but not 36 characters
+ *
+ * Four leading and four trailing characters are shown only when there are
+ * enough of them that the middle stays hidden; below that the value is masked
+ * entirely, since first-four-and-last-four of a nine-character string is
+ * effectively the whole string.
+ */
+function describeKey(raw: string | undefined): KeyShape {
+  const original = raw ?? "";
+  const key = original.trim();
+  const length = key.length;
+  const trimmedWhitespace = length !== original.length;
+
+  let note: string;
+  if (length === 0) {
+    note = original.length > 0 ? "whitespace only" : "empty";
+  } else if (/^[0-9a-fA-F-]+$/.test(key)) {
+    note =
+      length < 36
+        ? "hex and dashes but too short, so the value looks truncated"
+        : length > 36
+          ? "hex and dashes but too long, so something is appended"
+          : "the right length, but not in UUID layout";
+  } else {
+    note = "not hex and dashes, so this is placeholder text rather than a key";
+  }
+
+  const masked =
+    length === 0
+      ? "(nothing)"
+      : length <= 12
+        ? "•".repeat(length)
+        : `${key.slice(0, 4)}…${key.slice(-4)}`;
+
+  return { length, trimmedWhitespace, masked, note };
+}
 
 const inputClass =
   "mt-2 w-full rounded-lg border border-line bg-paper px-4 py-3 text-sm text-ink placeholder:text-slate/70 outline-none transition-colors focus-visible:border-gold-ink";
@@ -105,14 +173,18 @@ function Web3Form({
     }
 
     if (!UUID.test(key)) {
-      // Safe to show: a value that is not a UUID is not a working key, so it
-      // is a placeholder rather than a credential, and seeing it is the whole
-      // point. A valid key is never printed.
+      // The value is described, never reproduced. See describeKey: failing an
+      // anchored UUID test does NOT establish that a value is a placeholder
+      // rather than a credential, so neither this log nor the on-screen message
+      // may carry it.
+      const shape = describeKey(accessKey);
       console.error(
-        `[web3forms] ${keyName ?? "The access key"} reached the browser as ` +
-          `"${key}" (${key.length} chars), which is not a valid key.`,
+        `[web3forms] ${keyName ?? "The access key"} reached the browser in an ` +
+          `unusable form: ${shape.length} characters, ${shape.note}` +
+          `${shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""}. ` +
+          `Masked: ${shape.masked}`,
       );
-      setFailure({ kind: "malformed", got: key });
+      setFailure({ kind: "malformed", shape });
       setStatus("error");
       return;
     }
@@ -153,7 +225,7 @@ function Web3Form({
           keyName ? ` (Missing ${keyName}.)` : ""
         }`
       : failure?.kind === "malformed"
-        ? `The access key in this build is not a valid key. It arrived as "${failure.got}" (${failure.got.length} characters), so ${keyName ?? "the variable"} was not exposed to the build intact.`
+        ? `The access key in this build is not usable: ${failure.shape.length} characters, ${failure.shape.note}${failure.shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""} (shown masked as ${failure.shape.masked}). So ${keyName ?? "the variable"} was not exposed to the build intact.`
       : failure?.kind === "unreachable"
         ? "The form service could not be reached. A privacy or ad blocker will sometimes block it, so it is worth retrying with one paused."
         : failure?.detail
