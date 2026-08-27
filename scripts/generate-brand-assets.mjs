@@ -11,7 +11,7 @@
  */
 
 import { readFileSync, writeFileSync, mkdirSync, readdirSync } from "node:fs";
-import { join, dirname } from "node:path";
+import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import * as fontkit from "fontkit";
 import * as wawoff2 from "wawoff2";
@@ -50,38 +50,88 @@ const ln = (d, c, w) =>
 const markInner = () =>
   `  ${ln(CLOUD_ARC, GOLD, STROKE)}\n  ${ln(RETURN_ARC, GOLD_INK, STROKE)}`;
 
-/** Find a Next-downloaded webfont by the CSS module that declares it. */
-function findWoff2(cssNeedle) {
+/**
+ * Find a Next-downloaded webfont by the font family it declares.
+ *
+ * Resolved from the CSS *content* rather than the CSS filename, and from the
+ * `@font-face` block's own `url()` rather than an assumed media directory.
+ * Both of those were previously assumed and both assumptions were wrong:
+ *
+ *   - Next emits ONE hash-named stylesheet carrying every family. Matching a
+ *     filename against a module name like "space_grotesk" never hits, because
+ *     no filename contains it; the module name survives only inside the file,
+ *     in generated class names.
+ *   - The `url()` values are UNQUOTED, `url(../media/x.woff2)`. A pattern
+ *     requiring `url("...")` matches nothing.
+ *
+ * Neither was caused by a framework upgrade. Both hold on 16.2.12 and 16.3.3.
+ *
+ * The path resolves relative to the stylesheet that declares it, because
+ * `../media/` means different things from `.next/static/chunks` and
+ * `.next/dev/static/chunks`; hardcoding the production path pointed the dev
+ * branch at a file that need not exist.
+ */
+function findWoff2(family) {
   const chunkDirs = [
     join(ROOT, ".next", "dev", "static", "chunks"),
     join(ROOT, ".next", "static", "chunks"),
   ];
+
+  // Kept for the error message. A diagnostic that cannot say what it looked at
+  // is how the previous version came to advise running a build that had
+  // already succeeded.
+  const searched = [];
+  const familiesSeen = new Set();
+
   for (const dir of chunkDirs) {
     let files;
     try {
       files = readdirSync(dir);
     } catch {
+      searched.push(`${dir} (absent)`);
       continue;
     }
-    const css = files.find((f) => f.includes(cssNeedle) && f.endsWith(".css"));
-    if (!css) continue;
-    const text = readFileSync(join(dir, css), "utf8");
-    // The block carrying `U+??` is the main latin subset.
-    const blocks = text.split("@font-face").filter((b) => b.includes("U+??"));
-    for (const b of blocks) {
-      const m = b.match(/url\("\.\.\/media\/([^"]+)"\)/);
-      if (m) return join(ROOT, ".next", "static", "media", m[1]);
+    const stylesheets = files.filter((f) => f.endsWith(".css"));
+    searched.push(`${dir} (${stylesheets.length} stylesheet(s))`);
+
+    for (const sheet of stylesheets) {
+      const text = readFileSync(join(dir, sheet), "utf8");
+      for (const block of text.split("@font-face").slice(1)) {
+        const declared = block.match(/font-family:\s*([^;}]+)/);
+        if (!declared) continue;
+        const name = declared[1].trim().replace(/^["']|["']$/g, "");
+        familiesSeen.add(name);
+        if (name !== family) continue;
+
+        // `U+??` is the latin subset. The other blocks are Cyrillic, Greek and
+        // Vietnamese subsets, carrying none of the glyphs the wordmark uses.
+        const range = block.match(/unicode-range:\s*([^;}]+)/);
+        if (!range || !range[1].includes("U+??")) continue;
+
+        // Quoted or unquoted, both accepted.
+        const url = block.match(/url\(\s*["']?([^"')]+)["']?\s*\)/);
+        if (!url) continue;
+
+        return resolve(dir, url[1].trim());
+      }
     }
   }
+
   throw new Error(
-    `Could not locate the webfont for "${cssNeedle}". Run \`npm run build\` first.`,
+    `Could not locate the webfont for font-family "${family}".\n` +
+      `Searched:\n  ${searched.join("\n  ")}\n` +
+      `Families declared there: ` +
+      `${familiesSeen.size ? [...familiesSeen].sort().join(", ") : "(none)"}\n` +
+      `A latin (U+??) @font-face block with a url() is required. If the list ` +
+      `above is empty, run \`npm run build\` first. If it names families but ` +
+      `not this one, the font configuration in src/app/layout.tsx has changed.`,
   );
 }
 
-async function loadFontAsync(cssNeedle, label) {
+async function loadFontAsync(family, label) {
   mkdirSync(TMP, { recursive: true });
   const ttfPath = join(TMP, `${label}.ttf`);
-  const woff2 = readFileSync(findWoff2(cssNeedle));
+  const woff2 = readFileSync(findWoff2(family));
   const ttf = await wawoff2.decompress(woff2);
   writeFileSync(ttfPath, Buffer.from(ttf));
   return fontkit.openSync(ttfPath);
@@ -201,7 +251,7 @@ async function png(svg, file, width, height) {
 
 const main = async () => {
   mkdirSync(OUT, { recursive: true });
-  const grotesk = await loadFontAsync("space_grotesk", "space-grotesk");
+  const grotesk = await loadFontAsync("Space Grotesk", "space-grotesk");
   const display = grotesk.getVariation({ wght: 700 });
   // The descriptor is set in the display face at 500, not the mono — a tracked
   // monospace reads as a code label rather than part of the name.
