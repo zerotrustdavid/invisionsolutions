@@ -1,5 +1,5 @@
-# gitleaks configuration for invision-solutions-website
-title = "invision-solutions-website"
+# gitleaks configuration for invisionsolutions
+title = "invisionsolutions"
 
 [extend]
 useDefault = true
