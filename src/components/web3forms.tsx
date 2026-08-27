@@ -39,14 +39,12 @@ type Failure =
  * What a rejected key looked like, without being the key.
  *
  * The diagnostic value is in telling apart empty, whitespace-padded,
- * placeholder text and truncated. All four are identifiable from length,
- * character class and a masked rendering, none of which require printing the
- * value itself.
+ * placeholder text and truncated. All four come from length, a whitespace flag
+ * and a character-class note. **No characters of the value are carried.**
  */
 type KeyShape = {
   length: number;
   trimmedWhitespace: boolean;
-  masked: string;
   note: string;
 };
 
@@ -72,18 +70,27 @@ const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
  * whole, real key included. Narrow, but real, and the comment asserting it was
  * impossible was worse than no comment.
  *
- * Masking keeps every distinction the diagnostic actually needs:
+ * An earlier version of this also emitted a masked rendering, four leading and
+ * four trailing characters. That has been removed. It was the only field
+ * carrying characters of the value, and therefore the only one CodeQL could
+ * taint through `String.prototype.slice`, which is what raised
+ * js/clear-text-logging alert #3 against the supposedly fixed version.
  *
- *   empty              length 0, nothing was inlined
- *   whitespace-padded  trimmedWhitespace true, the dashboard value has stray
- *                      characters around it
+ * Removing it costs nothing, because every distinction worth drawing comes
+ * from the other three fields:
+ *
+ *   empty              length 0 and trimmedWhitespace false
+ *   whitespace-padded  length 0 and trimmedWhitespace TRUE
  *   placeholder text   not hex-and-dashes, so something rewrote the value
  *   truncated          hex-and-dashes but not 36 characters
  *
- * Four leading and four trailing characters are shown only when there are
- * enough of them that the middle stays hidden; below that the value is masked
- * entirely, since first-four-and-last-four of a nine-character string is
- * effectively the whole string.
+ * The masked value was only ever an aid to identifying *which* key arrived,
+ * and it could not do that job here: a valid-but-wrong key passes UUID.test
+ * and never reaches this branch at all.
+ *
+ * What survives is genuinely untainted. `length` is a number, `trimmedWhitespace`
+ * is a comparison result, and `note` is one of a fixed set of string literals
+ * selected by branching. None of them propagate the value's content.
  */
 function describeKey(raw: string | undefined): KeyShape {
   const original = raw ?? "";
@@ -105,14 +112,7 @@ function describeKey(raw: string | undefined): KeyShape {
     note = "not hex and dashes, so this is placeholder text rather than a key";
   }
 
-  const masked =
-    length === 0
-      ? "(nothing)"
-      : length <= 12
-        ? "•".repeat(length)
-        : `${key.slice(0, 4)}…${key.slice(-4)}`;
-
-  return { length, trimmedWhitespace, masked, note };
+  return { length, trimmedWhitespace, note };
 }
 
 const inputClass =
@@ -181,8 +181,7 @@ function Web3Form({
       console.error(
         `[web3forms] ${keyName ?? "The access key"} reached the browser in an ` +
           `unusable form: ${shape.length} characters, ${shape.note}` +
-          `${shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""}. ` +
-          `Masked: ${shape.masked}`,
+          `${shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""}.`,
       );
       setFailure({ kind: "malformed", shape });
       setStatus("error");
@@ -225,7 +224,7 @@ function Web3Form({
           keyName ? ` (Missing ${keyName}.)` : ""
         }`
       : failure?.kind === "malformed"
-        ? `The access key in this build is not usable: ${failure.shape.length} characters, ${failure.shape.note}${failure.shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""} (shown masked as ${failure.shape.masked}). So ${keyName ?? "the variable"} was not exposed to the build intact.`
+        ? `The access key in this build is not usable: ${failure.shape.length} characters, ${failure.shape.note}${failure.shape.trimmedWhitespace ? ", with surrounding whitespace trimmed" : ""}. So ${keyName ?? "the variable"} was not exposed to the build intact.`
       : failure?.kind === "unreachable"
         ? "The form service could not be reached. A privacy or ad blocker will sometimes block it, so it is worth retrying with one paused."
         : failure?.detail
