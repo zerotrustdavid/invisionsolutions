@@ -6,7 +6,7 @@ import { Section, Eyebrow, SurfaceCard } from "@/components/ui";
 import {
   CONTACT_ACCESS_KEY,
   CONTACT_KEY_NAME,
-  TESTIMONIALS_ADDRESS,
+  PUBLIC_CONTACT_ADDRESS,
 } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
@@ -154,10 +154,10 @@ export default function TestimonialsPage() {
             <p className="mt-6 text-sm leading-relaxed text-slate">
               Prefer email? Send it to{" "}
               <a
-                href={`mailto:${TESTIMONIALS_ADDRESS}`}
+                href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
                 className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
               >
-                {TESTIMONIALS_ADDRESS}
+                {PUBLIC_CONTACT_ADDRESS}
               </a>
               .
             </p>

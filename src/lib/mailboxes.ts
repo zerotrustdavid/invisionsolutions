@@ -29,18 +29,14 @@ export const CONTACT_ACCESS_KEY = process.env.NEXT_PUBLIC_WEB3FORMS_KEY;
 /** Named in the error state when CONTACT_ACCESS_KEY resolves to nothing. */
 export const CONTACT_KEY_NAME = "NEXT_PUBLIC_WEB3FORMS_KEY";
 
-/** The address that key delivers to, and the public address for the site. */
-export const PUBLIC_CONTACT_ADDRESS = "contact@invisionsolutions.co.uk";
-
 /**
- * Addresses published as `mailto:` links on /services and /testimonials.
+ * The address that key delivers to, and the only address the site publishes.
  *
- * These are not Web3Forms recipients and never were — a mailto opens the
- * visitor's own mail client and goes straight to the address, so it does not
- * touch the Web3Forms account or its linked-email allowance. They are listed
- * here so that every address the site publishes is visible in one file.
- *
- * They are only worth keeping while those mailboxes actually receive mail.
+ * Every `mailto:` link on the site points here too. /services previously
+ * published sales@ and /testimonials published hello@; both mailboxes are being
+ * retired along with the per-department forms, so advertising them would leave
+ * dead addresses on a live site. A mailto does not touch the Web3Forms account
+ * at all, so this is about where mail can actually be read, not about the
+ * linked-email allowance.
  */
-export const SALES_ADDRESS = "sales@invisionsolutions.co.uk";
-export const TESTIMONIALS_ADDRESS = "hello@invisionsolutions.co.uk";
+export const PUBLIC_CONTACT_ADDRESS = "contact@invisionsolutions.co.uk";
