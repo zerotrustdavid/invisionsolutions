@@ -12,8 +12,7 @@ const SITE_LINKS = [
 
 const CONTACT_LINKS = [
   { href: "/contact", label: "Contact" },
-  { href: "/enquiries", label: "Enquiries by department" },
-  { href: "/brand", label: "Brand assets" },
+  { href: "/enquiries", label: "Enquiries" },
 ];
 
 function Footer() {
@@ -90,10 +89,7 @@ function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 flex flex-col gap-3 border-t border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-slate">
-            Session: closed — log {year} — access: granted
-          </p>
+        <div className="mt-12 border-t border-line pt-6">
           <p className="text-xs text-slate">
             © {year} Invision Solutions Ltd. All rights reserved.
           </p>

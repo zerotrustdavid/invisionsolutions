@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { pageMetadata } from "@/lib/metadata";
 import { Reveal } from "@/components/reveal";
 import { Web3Form, type Field } from "@/components/web3forms";
 import { Section, Eyebrow } from "@/components/ui";
-import { CONTACT_ACCESS_KEY, CONTACT_KEY_NAME } from "@/lib/mailboxes";
+import {
+  CONTACT_ACCESS_KEY,
+  CONTACT_KEY_NAME,
+  PUBLIC_CONTACT_ADDRESS,
+} from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -49,15 +52,14 @@ export default function ContactPage() {
             I read and respond to every message personally.
           </p>
           <p className="mt-8 text-sm leading-relaxed text-slate">
-            Have something more specific — pricing, invoicing, contracts, or
-            support on live work?{" "}
-            <Link
-              href="/enquiries"
+            Prefer email? Send it to{" "}
+            <a
+              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
               className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
             >
-              Send it to the right desk
-            </Link>{" "}
-            and it will reach the correct mailbox first time.
+              {PUBLIC_CONTACT_ADDRESS}
+            </a>
+            .
           </p>
         </Reveal>
 

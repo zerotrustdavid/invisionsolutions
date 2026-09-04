@@ -31,19 +31,17 @@ const HOOKS = ["preinstall", "install", "postinstall"];
  * `verified` records how that was established, because reading a script's name
  * is not verification.
  */
+// sharp was listed here while the tree carried sharp 0.34.x, which shipped an
+// install script (install/check.js, deciding whether to build against a global
+// libvips). 0.35.x dropped that script entirely, so from the 0.34.5 -> 0.35.4
+// bump onward there has been nothing to permit. sharp is still installed, as an
+// optional dependency of next; it simply no longer runs anything on install.
+//
+// The entry is removed rather than kept "just in case". This is a permit list:
+// an unused permit is not harmless, because if a future sharp reintroduces an
+// install script it should fail this check and be re-reviewed, not sail through
+// on a rationale written for a script that no longer exists.
 const ALLOWED = {
-  sharp: {
-    reason:
-      "Arrives as a dependency of next, which uses it for image optimisation. " +
-      "The install script checks whether a system-wide libvips should be used " +
-      "and, if so, exits non-zero to trigger a source build. On a normal " +
-      "install it is a no-op and the prebuilt platform binary is used instead, " +
-      "so skipping it costs nothing.",
-    verified:
-      "Read node_modules/sharp/install/check.js. It requires ../lib/libvips, " +
-      "calls useGlobalLibvips(), and exits 1 only when a global libvips or " +
-      "npm_config_build_from_source is present. It writes nothing.",
-  },
   "unrs-resolver": {
     reason:
       "Development only. Arrives via eslint-config-next through " +
