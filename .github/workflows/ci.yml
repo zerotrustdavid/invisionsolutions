@@ -60,31 +60,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      # The brand assets in public/brand/ are generated, committed, and served
-      # to the public from /brand. Nothing verified that the generator still
-      # produced them until this step existed.
-      #
-      # That gap is not hypothetical. `npm run brand` was broken on main and
-      # stayed broken through two merges, because no job ran it: the generator
-      # located its webfont by CSS *filename*, and Next emits one hash-named
-      # stylesheet carrying every family. A manual run days later is what
-      # surfaced it.
-      #
-      # `git diff --exit-code` is the assertion. Regenerating is not enough on
-      # its own: the generator can run to completion and still emit different
-      # bytes, which is exactly the risk when the imaging library underneath it
-      # moves a major version.
-      - name: Brand assets reproduce byte-identically
-        run: |
-          npm run brand
-          git diff --exit-code public/brand/ || {
-            echo "::error::Regenerating produced different bytes from the committed brand assets."
-            echo "Either the generator changed behaviour, or a dependency under it did."
-            echo "If the change is intended, commit the regenerated files in the same PR."
-            git diff --stat public/brand/
-            exit 1
-          }
-
   secrets:
     name: Secret scan
     runs-on: ubuntu-latest

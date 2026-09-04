@@ -3,7 +3,11 @@ import { pageMetadata } from "@/lib/metadata";
 import { Reveal } from "@/components/reveal";
 import { Web3Form, type Field } from "@/components/web3forms";
 import { Section, Eyebrow, SurfaceCard } from "@/components/ui";
-import { TESTIMONIALS_ADDRESS } from "@/lib/mailboxes";
+import {
+  CONTACT_ACCESS_KEY,
+  CONTACT_KEY_NAME,
+  PUBLIC_CONTACT_ADDRESS,
+} from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Testimonials",
@@ -150,10 +154,10 @@ export default function TestimonialsPage() {
             <p className="mt-6 text-sm leading-relaxed text-slate">
               Prefer email? Send it to{" "}
               <a
-                href={`mailto:${TESTIMONIALS_ADDRESS}`}
+                href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
                 className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
               >
-                {TESTIMONIALS_ADDRESS}
+                {PUBLIC_CONTACT_ADDRESS}
               </a>
               .
             </p>
@@ -161,7 +165,8 @@ export default function TestimonialsPage() {
 
           <Reveal delay={0.1}>
             <Web3Form
-              accessKey={process.env.NEXT_PUBLIC_WEB3FORMS_KEY_HELLO ?? process.env.NEXT_PUBLIC_WEB3FORMS_KEY}
+              accessKey={CONTACT_ACCESS_KEY}
+              keyName={CONTACT_KEY_NAME}
               subject="New testimonial — Invision Solutions website"
               fields={FIELDS}
               submitLabel="Submit testimonial"

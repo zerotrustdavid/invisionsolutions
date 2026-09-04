@@ -4,7 +4,7 @@ import { pageMetadata } from "@/lib/metadata";
 import { Reveal } from "@/components/reveal";
 import { Section, Eyebrow, SurfaceCard, PrimaryButton } from "@/components/ui";
 import { SERVICES } from "@/lib/content";
-import { SALES_ADDRESS, PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Services",
@@ -86,10 +86,10 @@ export default function ServicesPage() {
           <p className="mt-10 text-sm leading-relaxed text-slate">
             Pricing question? Day rates and retainer costs go to{" "}
             <a
-              href={`mailto:${SALES_ADDRESS}`}
+              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
               className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
             >
-              {SALES_ADDRESS}
+              {PUBLIC_CONTACT_ADDRESS}
             </a>
             .
           </p>

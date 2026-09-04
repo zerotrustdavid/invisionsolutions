@@ -18,11 +18,10 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run check:install-scripts` | Fail if a dependency ships an install script not on the allowlist |
-| `npm run brand` | Regenerate the downloadable brand assets (run `build` first) |
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in the Web3Forms access keys:
+Copy `.env.example` to `.env.local` and fill in the Web3Forms access key:
 
 ```bash
 cp .env.example .env.local
@@ -33,6 +32,10 @@ Without a key set, the form reports that it is not configured rather than submit
 Web3Forms access keys are **publishable, not secret**. They are prefixed `NEXT_PUBLIC_`, inlined into the client bundle at build time, and readable by anyone viewing source on the deployed site. Keeping them out of the source tree is hygiene, not confidentiality. Because they are inlined at build time, changing one in the hosting dashboard has no effect on a deployment that already exists: every environment carrying a form needs a rebuild, not just a variable update.
 
 Deployment and mailbox configuration is documented privately.
+
+There is one Web3Forms form and one key. `/contact`, `/enquiries` and the testimonial form on `/testimonials` all submit with `NEXT_PUBLIC_WEB3FORMS_KEY`, which delivers to `contact@invisionsolutions.co.uk`. Each form sets its own subject line, so mail rules can still tell submissions apart.
+
+This was previously seven forms and eight keys, one per department mailbox. Those forms have been deleted from the Web3Forms account, and nothing reads the old `NEXT_PUBLIC_WEB3FORMS_KEY_*` variables any more. Delete them from the hosting dashboard too: a variable naming a form that no longer exists is the fault that stopped `/contact` delivering in August, and leaving them set invites someone to wire one back up.
 
 ### When a submission fails
 
@@ -51,22 +54,15 @@ The mark is a cloud drawn as one continuous line: the stroke traces the silhouet
 
 There is **one version and no variants**. No dark colourway, no inverted form, and no heavier stand-in at small sizes. The tile, favicon and app icon all carry the same artwork on a white field. On anything other than white or near-white, use the white tile rather than recolouring the mark.
 
-Geometry and colour roles live in `src/lib/brand.ts` and are mirrored in `scripts/generate-brand-assets.mjs`. Change both together.
+Geometry and colour roles live in `src/lib/brand.ts`, which is the single source for the mark. `src/components/logo.tsx`, `src/app/icon.tsx` and `src/app/opengraph-image.tsx` all draw from it.
 
 The mark and the wordmark are trademarked material. See `LICENSE.md`.
 
-### Regenerating the downloadable files
-
-```bash
-npm run build   # must run first; the generator reads Next's webfont files
-npm run brand
-```
-
-This writes 15 files to `public/brand/`, surfaced on `/brand`. Wordmark type is converted to outlines so the SVGs render correctly without Space Grotesk installed.
+There is no public brand-assets page and no downloadable logo files. There was a `/brand` route serving 15 generated files from `public/brand/`, produced by `scripts/generate-brand-assets.mjs`; the page, the files and the generator have all been removed. Send anyone who needs artwork a file directly.
 
 ### Two things worth knowing before editing the lockup
 
-**The descriptor is width-matched.** "SOLUTIONS" is tracked so it spans exactly the width of "INVISION" above it. Size is the lever, not tracking: at 25% of the wordmark it would need 1.28em of tracking to reach that width, which scatters the letters, so it sits at 45% and needs 0.4615em. The generator re-solves the value from real font metrics rather than reading the constant, so the two cannot drift apart. Both figures are recorded in `WORDMARK` in `src/lib/brand.ts`.
+**The descriptor is width-matched.** "SOLUTIONS" is tracked so it spans exactly the width of "INVISION" above it. Size is the lever, not tracking: at 25% of the wordmark it would need 1.28em of tracking to reach that width, which scatters the letters, so it sits at 45% and needs 0.4615em. Both figures are recorded in `WORDMARK` in `src/lib/brand.ts`. They were previously re-solved from real font metrics by the generator, which no longer exists, so the constants are now the only record — check them against rendered output if the wordmark is ever retyped.
 
 **`src/app/_fonts/` exists for the Open Graph image.** `next/font` ships Space Grotesk as a single variable file covering all three weights, and Satori does not apply variable axes, so `ImageResponse` silently falls back to a generic sans. Those three static font instances are loaded explicitly in `src/app/opengraph-image.tsx` to stop that happening. Do not delete them.
 
@@ -82,14 +78,14 @@ HSTS is sent with `max-age` and `includeSubDomains` but deliberately **without `
 
 Routes, one folder per page under `src/app/`:
 
-`/` · `/services` · `/approach` · `/case-studies` · `/testimonials` · `/enquiries` · `/contact` · `/brand` · `/payreckon`
+`/` · `/services` · `/approach` · `/case-studies` · `/testimonials` · `/enquiries` · `/contact` · `/payreckon`
 
 - `src/app/icon.tsx`, `src/app/opengraph-image.tsx`: favicon and social card, generated at build time
 - `src/app/globals.css`: design tokens (colour, font, focus states) as CSS custom properties, mapped into Tailwind's `@theme`
 - `src/components/*`: header, footer, logo, surface primitives, verification-ledger motif, scroll-reveal wrapper, social icons, Web3Forms form
 - `src/lib/brand.ts`: mark geometry, colour roles, wordmark metrics
 - `src/lib/content.ts`: services and case study copy, shared between the Home teasers and the full pages
-- `src/lib/mailboxes.ts`: the department mailboxes behind `/enquiries`
+- `src/lib/mailboxes.ts`: the single Web3Forms access key and the addresses the site publishes
 - `src/lib/metadata.ts`: canonical URL and per-page metadata helper
 - `src/lib/payreckon.ts`: PayReckon product copy, with sourcing rules in the file header
 
