@@ -57,6 +57,15 @@ jobs:
       - name: Lint
         run: npm run lint
 
+      # Colour contrast in both themes, and the brand's CSS variables. It reads
+      # the real tokens from globals.css and begins with a self-test, so a pass
+      # means something. The second job it does is guard the logo: brand.ts reads
+      # the mark's colours as CSS variables, and removing one from the stylesheet
+      # makes a stroke vanish from the logo with no build error. A redesign did
+      # exactly that once and only a pixel diff caught it.
+      - name: Contrast and brand-variable check
+        run: npm run check:contrast
+
       - name: Build
         run: npm run build
 

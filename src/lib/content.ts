@@ -9,31 +9,31 @@ export const SERVICES: Service[] = [
     slug: "cloud-security-architecture",
     title: "Cloud Security & Architecture",
     summary:
-      "Design and harden environments across AWS, Azure, and GCP. Zero Trust architecture, IAM and Microsoft Entra ID configuration, and secure-by-design cloud migrations — built to hold up under audit, not just under a demo.",
+      "Design and hardening of environments across AWS, Azure and GCP: Zero Trust architecture, IAM and Microsoft Entra ID configuration, and secure-by-design cloud migrations that hold up under audit.",
   },
   {
     slug: "devsecops-cicd-security",
     title: "DevSecOps & CI/CD Security",
     summary:
-      "Security folded into the pipeline itself: Terraform-driven infrastructure-as-code, GitHub Actions security gates, dependency and vulnerability scanning with Snyk, and secrets management done properly — so security stops being the thing that blocks a release.",
+      "Security built into the pipeline itself: Terraform-driven infrastructure as code, GitHub Actions security gates, dependency and vulnerability scanning with Snyk, and secrets management. The aim is that security stops being what holds a release up.",
   },
   {
     slug: "security-operations-siem",
     title: "Security Operations & SIEM Engineering",
     summary:
-      "SIEM design and tuning across Splunk, Datadog, and Microsoft Sentinel, endpoint protection with CrowdStrike Falcon, and detection engineering that's built around your actual threat model — not a vendor's default ruleset.",
+      "SIEM design and tuning across Splunk, Datadog and Microsoft Sentinel, endpoint protection with CrowdStrike Falcon, and detection engineering built around your own threat model rather than a vendor's default ruleset.",
   },
   {
     slug: "compliance-governance",
     title: "Compliance & Governance",
     summary:
-      "ISO 27001 and SOC 2 readiness, audit preparation, and continuous compliance monitoring with tools like Drata — framed as an engineering problem with a paper trail, not a paperwork problem with a deadline.",
+      "ISO 27001 and SOC 2 readiness, audit preparation, and continuous compliance monitoring with tools like Drata. I treat it as an engineering problem that leaves a paper trail.",
   },
   {
     slug: "fractional-security-leadership",
     title: "Fractional Security Leadership",
     summary:
-      "For organisations that need senior security judgement at the table — architecture reviews, board-level risk reporting, vendor evaluation — without the cost or commitment of a full-time CISO hire.",
+      "For organisations that need senior security judgement at the table without the cost or commitment of a full-time CISO hire: architecture reviews, board-level risk reporting and vendor evaluation.",
   },
 ];
 
@@ -50,7 +50,7 @@ export type CaseStudy = {
  * Anonymised case studies drawn from real practice areas.
  *
  * Clients are never named. The outcome figures are deliberately modest and
- * rounded — they describe the shape of a result rather than claiming audited
+ * rounded; they describe the shape of a result rather than claiming audited
  * precision. Confirm each one against the actual engagement before treating
  * this page as final; these are published claims about client outcomes.
  */
@@ -103,7 +103,7 @@ export const CASE_STUDIES: CaseStudy[] = [
     discipline: "Security Architecture",
     title: "Zero Trust Access Model",
     situation:
-      "A perimeter-based access model no longer matched how the organisation worked — contractors, third-party integrations, and remote employees all sat inside a trusted network boundary.",
+      "A perimeter-based access model no longer matched how the organisation worked: contractors, third-party integrations, and remote employees all sat inside a trusted network boundary.",
     action:
       "Designed a Zero Trust access model on Microsoft Entra ID with conditional access, device posture checks, and just-in-time elevation. Sequenced the rollout so no user group lost access during transition.",
     outcome:
@@ -116,19 +116,29 @@ export const CASE_STUDIES: CaseStudy[] = [
     situation:
       "An engineering team was making architectural decisions with security consequences and no senior security voice in the room, discovering problems at review rather than at design.",
     action:
-      "Embedded as a fractional security architect: design review at proposal stage, threat modelling for new services, and vendor assessments — plus written standards the team could apply without waiting on a review.",
+      "Embedded as a fractional security architect: design review at proposal stage, threat modelling for new services, and vendor assessments, plus written standards the team could apply without waiting on a review.",
     outcome:
       "Around 30 designs reviewed before build over 12 months. Security rework identified at release review fell markedly, with most issues instead caught at design stage where they cost far less to fix.",
   },
 ];
 
-export const CERTIFICATIONS_AND_STACK = [
+/**
+ * These were a single list headed "Certified & Aligned". That put CrowdStrike
+ * Falcon, Terraform and the rest under a word that claims a certification for
+ * each, which this site does not state anywhere. They are now two lists with
+ * two honest labels: what is certified, and what I work with (every tool named
+ * here also appears in the service descriptions above).
+ */
+export const CERTIFICATIONS = [
   "AWS Certified Solutions Architect – Professional",
-  "Microsoft Azure (AZ-900)",
-  "CrowdStrike Falcon",
+  "Microsoft Azure Fundamentals (AZ-900)",
+];
+
+export const TOOLS = [
   "Terraform",
   "GitHub Actions",
   "Snyk",
   "Splunk",
   "Datadog",
+  "CrowdStrike Falcon",
 ];

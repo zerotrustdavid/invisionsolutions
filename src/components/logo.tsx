@@ -109,7 +109,7 @@ function LogoLockup({
   const wordmark = (
     // No negative tracking: uppercase wants neutral or slightly open spacing.
     <span
-      className="whitespace-nowrap font-display font-bold text-ink"
+      className="whitespace-nowrap font-wordmark font-bold text-ink"
       style={{ fontSize: size }}
     >
       INVISION
@@ -117,7 +117,7 @@ function LogoLockup({
   );
   const sub = subline && (
     <span
-      className="whitespace-nowrap font-display uppercase text-slate"
+      className="whitespace-nowrap font-wordmark uppercase text-slate"
       style={{
         fontSize: size * WORDMARK.sublineRatio,
         fontWeight: 500,

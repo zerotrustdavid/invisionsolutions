@@ -39,4 +39,4 @@ export const CONTACT_KEY_NAME = "NEXT_PUBLIC_WEB3FORMS_KEY";
  * at all, so this is about where mail can actually be read, not about the
  * linked-email allowance.
  */
-export const PUBLIC_CONTACT_ADDRESS = "contact@invisionsolutions.co.uk";
+export const PUBLIC_CONTACT_ADDRESS = "david@invisionsolutions.co.uk";

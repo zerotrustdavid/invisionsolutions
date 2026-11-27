@@ -43,6 +43,23 @@ environment read in the whole codebase. Do not reintroduce a `?? FALLBACK` chain
 of per-mailbox keys: that pattern let a broken key hide behind a working one and
 is how `/contact` failed in August.
 
+## Design
+
+`DESIGN.md` records the design system and the reasons for it. Read it before
+changing how the site looks. Two things in it are easy to break and give no
+build error when broken:
+
+- **The logo reads CSS variables by name.** `src/lib/brand.ts` defines the mark's
+  colours as `var(--color-gold-ink)` and friends. Remove or rename one of those
+  tokens in `globals.css` and a stroke silently disappears from the logo.
+  `npm run check:contrast` fails if any variable `brand.ts` reads is undefined.
+- **The lockup is pinned to the brand's own colours** inside `.logo-plate`, and
+  its typeface is `font-wordmark`. Neither follows the site's palette or its
+  display face, because the mark is one version with no variants.
+
+Do not edit case study figures, outcomes or sector labels as part of a design
+change. They are published claims, not design material.
+
 ## Conventions
 
 - No `Co-Authored-By` trailer and no "Generated with Claude Code" anywhere in this repository, including pull request bodies. A PR body must be updated immediately after creation, because the footer is appended server-side on create.

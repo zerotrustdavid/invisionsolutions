@@ -1,5 +1,5 @@
 /**
- * PayReckon — a separate product David built and runs, surfaced from this site.
+ * PayReckon: a separate product David built and runs, surfaced from this site.
  *
  * Every claim here is drawn from the PayReckon repository itself
  * (github.com/zerotrustdavid/payreckon). Do not add feature claims, user
@@ -21,11 +21,11 @@ export const PAYRECKON_DISCLAIMER =
 export const PAYRECKON = {
   name: "PayReckon",
   tagline:
-    "UK take-home pay calculators for contractors and employees — inside IR35 through an umbrella, outside IR35 through your own limited company, or permanent on PAYE, all behind one tax engine so the comparison is genuinely like for like.",
+    "UK take-home pay calculators for contractors and employees: inside IR35 through an umbrella, outside IR35 through your own limited company, or permanent on PAYE, all behind one tax engine so the comparison is genuinely like for like.",
   short:
     "UK take-home pay, compared across umbrella, limited company, and PAYE.",
   problem:
-    "Deciding how to be paid in the UK is genuinely hard to reason about. A day rate and a salary are not comparable numbers, and most calculators handle one arrangement in isolation — so comparing them means running three different tools that disagree with each other and hoping the difference is real rather than a modelling artefact.",
+    "Deciding how to be paid in the UK is genuinely hard to reason about. A day rate and a salary are not comparable numbers, and most calculators handle one arrangement in isolation. Comparing them means running three different tools that disagree with each other and hoping the difference is real rather than a modelling artefact.",
   built:
     "PayReckon runs all three arrangements through the same tax engine. Income tax, National Insurance, dividend tax, and student loan repayments are calculated by shared code, so identical taxable income is taxed identically no matter which arrangement produced it. The calculators diverge only where the tax treatment genuinely does.",
 } as const;
@@ -51,16 +51,16 @@ export const PAYRECKON_CALCULATORS = [
 
 /**
  * Engineering detail. This is the part that earns PayReckon its place on a
- * consultancy site — it evidences the same discipline the consultancy sells.
+ * consultancy site: it evidences the same discipline the consultancy sells.
  */
 export const PAYRECKON_RIGOUR = [
   {
     title: "Solved, not approximated",
-    body: "In an umbrella calculation, employer's NI, the Apprenticeship Levy, and employer pension are deducted from the assignment rate but charged on the gross pay that remains — each depends on the other. PayReckon solves that relationship algebraically per NI branch, and a round-trip test asserts that gross pay plus every employment cost returns the assignment rate exactly.",
+    body: "In an umbrella calculation, employer's NI, the Apprenticeship Levy, and employer pension are deducted from the assignment rate but charged on the gross pay that remains, so each depends on the other. PayReckon solves that relationship algebraically per NI branch, and a round-trip test asserts that gross pay plus every employment cost returns the assignment rate exactly.",
   },
   {
     title: "Every rate cited to source",
-    body: "Figures come from gov.uk and gov.scot with the source URL recorded beside the number. Rates are never edited in place when a new tax year arrives — a new file is added, so historical calculations stay reproducible.",
+    body: "Figures come from gov.uk and gov.scot with the source URL recorded beside the number. Rates are never edited in place when a new tax year arrives. A new file is added, so historical calculations stay reproducible.",
   },
   {
     title: "Correctness held by tests",

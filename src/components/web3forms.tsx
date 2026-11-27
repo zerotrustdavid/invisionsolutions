@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export type Field = {
   name: string;
@@ -116,7 +117,7 @@ function describeKey(raw: string | undefined): KeyShape {
 }
 
 const inputClass =
-  "mt-2 w-full rounded-lg border border-line bg-paper px-4 py-3 text-sm text-ink placeholder:text-slate/70 outline-none transition-colors focus-visible:border-gold-ink";
+  "mt-2 w-full rounded-[3px] border border-control bg-paper px-3.5 py-3 font-sans text-[0.9375rem] text-ink placeholder:text-faint outline-none transition-colors focus-visible:border-accent focus-visible:ring-1 focus-visible:ring-accent";
 
 /**
  * A Web3Forms-backed form.
@@ -130,7 +131,7 @@ function Web3Form({
   subject,
   fields,
   submitLabel = "Send message",
-  successTitle = "Status: Received",
+  successTitle = "Message sent",
   successBody,
   compact = false,
 }: {
@@ -233,11 +234,11 @@ function Web3Form({
 
   if (status === "success") {
     return (
-      <div className="surface-raised rounded-xl p-8 text-center">
-        <p className="font-mono text-xs uppercase tracking-[0.2em] text-gold-ink">
-          {successTitle}
+      <div role="status" className="border-t border-line-strong pt-8">
+        <p className="t-label">{successTitle}</p>
+        <p className="mt-3 font-serif text-[1.375rem] leading-snug text-ink">
+          {successBody}
         </p>
-        <p className="mt-4 text-lg text-ink">{successBody}</p>
       </div>
     );
   }
@@ -245,7 +246,7 @@ function Web3Form({
   return (
     <form
       onSubmit={handleSubmit}
-      className={`surface-raised rounded-xl ${compact ? "p-5 sm:p-6" : "p-6 sm:p-8"}`}
+      className={`border-t border-line-strong ${compact ? "pt-6" : "pt-8"}`}
     >
       {/* Honeypot — unchecked checkboxes are omitted from FormData by browsers. */}
       <input
@@ -263,10 +264,10 @@ function Web3Form({
           const wrapper = field.full || compact ? "sm:col-span-2" : "";
           return (
             <div key={field.name} className={wrapper}>
-              <label htmlFor={id} className="block text-sm font-medium text-ink">
+              <label htmlFor={id} className="block font-sans text-[0.875rem] font-medium text-ink">
                 {field.label}
                 {!field.required && (
-                  <span className="ml-1.5 font-normal text-slate">(optional)</span>
+                  <span className="ml-1.5 font-normal text-faint">(optional)</span>
                 )}
               </label>
 
@@ -313,26 +314,26 @@ function Web3Form({
 
       {status === "error" && (
         <div className="mt-4" role="alert" aria-live="polite">
-          <p className="text-sm text-red-700">
+          <p className="font-sans text-[0.9375rem] text-danger">
             Something went wrong sending that. Please try again, or email{" "}
             <a
-              href="mailto:contact@invisionsolutions.co.uk"
+              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
               className="underline underline-offset-4"
             >
-              contact@invisionsolutions.co.uk
+              {PUBLIC_CONTACT_ADDRESS}
             </a>{" "}
             directly.
           </p>
           {/* The specific cause, so a screenshot of the failure is enough to
               diagnose it without asking anyone to open a browser console. */}
-          {reason && <p className="mt-1.5 text-xs text-slate">{reason}</p>}
+          {reason && <p className="mt-1.5 font-sans text-[0.8125rem] text-slate">{reason}</p>}
         </div>
       )}
 
       <button
         type="submit"
         disabled={status === "submitting"}
-        className="mt-7 inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-88 disabled:opacity-60"
+        className="mt-7 inline-flex items-center gap-2 rounded-[3px] bg-ink px-5 py-3 font-sans text-[0.9375rem] font-medium leading-none text-paper transition-colors hover:bg-accent disabled:opacity-60"
       >
         {status === "submitting" ? "Sending…" : submitLabel}
       </button>

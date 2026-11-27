@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
-import { Reveal } from "@/components/reveal";
 import {
   Section,
-  Eyebrow,
-  SurfaceCard,
+  PageHead,
   PrimaryButton,
-  SecondaryButton,
+  TextLink,
   ExternalPrimaryButton,
-  ExternalSecondaryButton,
-  StatusTag,
+  ExternalTextLink,
+  Rows,
+  Row,
 } from "@/components/ui";
 import {
   PAYRECKON,
@@ -26,206 +25,124 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "PayReckon",
   description:
-    "PayReckon is a UK take-home pay calculator built and run by David Levi — comparing umbrella, limited company, and PAYE employment behind a single tax engine.",
+    "PayReckon is a UK take-home pay calculator that I built and run, comparing umbrella, limited company and PAYE employment behind a single tax engine.",
   path: "/payreckon",
 });
 
 export default function PayReckonPage() {
   return (
     <>
-      <Section className="pt-20 sm:pt-24">
-        <div className="grid gap-12 lg:grid-cols-[1.3fr_1fr] lg:items-start">
-          <Reveal>
-            <Eyebrow>Own product</Eyebrow>
-            <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
-              PayReckon.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate">
-              {PAYRECKON.tagline}
-            </p>
-            <div className="mt-9 flex flex-wrap gap-3">
-              <ExternalPrimaryButton href={PAYRECKON_URL}>
-                Open PayReckon
-              </ExternalPrimaryButton>
-              <ExternalSecondaryButton href={PAYRECKON_REPO_URL}>
-                Source on GitHub
-              </ExternalSecondaryButton>
-            </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <SurfaceCard className="w-full">
-              <div className="flex flex-wrap gap-2">
-                <StatusTag>Live</StatusTag>
-                <StatusTag>Built &amp; run by David</StatusTag>
-              </div>
-              <p className="mt-6 font-mono text-[11px] uppercase tracking-[0.18em] text-slate">
-                Covers
-              </p>
-              <ul className="mt-3 space-y-2 text-sm text-ink">
-                {PAYRECKON_COVERAGE.map((item) => (
-                  <li key={item} className="flex gap-2.5">
-                    <span aria-hidden="true" className="text-gold-ink">
-                      —
-                    </span>
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </SurfaceCard>
-          </Reveal>
+      <PageHead title="PayReckon." lede={PAYRECKON.tagline}>
+        <p className="t-label mt-8">Live product, built and run by me</p>
+        <div className="mt-6 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <ExternalPrimaryButton href={PAYRECKON_URL}>Open PayReckon</ExternalPrimaryButton>
+          <ExternalTextLink href={PAYRECKON_REPO_URL}>Source on GitHub</ExternalTextLink>
         </div>
-      </Section>
+      </PageHead>
 
-      <Section tone="panel" className="border-t border-line">
-        <div className="grid gap-12 lg:grid-cols-2 lg:items-start">
-          <Reveal>
-            <Eyebrow>The problem</Eyebrow>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">
-              Three arrangements, three different answers.
-            </h2>
-            <p className="mt-6 leading-relaxed text-slate">{PAYRECKON.problem}</p>
-          </Reveal>
-          <Reveal delay={0.1}>
-            <Eyebrow>What it does</Eyebrow>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink">
-              One tax engine behind all three.
-            </h2>
-            <p className="mt-6 leading-relaxed text-slate">{PAYRECKON.built}</p>
-          </Reveal>
-        </div>
-      </Section>
-
-      <Section className="border-t border-line">
-        <Reveal>
-          <Eyebrow>The calculators</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Every route you can be paid through.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {PAYRECKON_CALCULATORS.map((calc, i) => (
-            <Reveal key={calc.name} delay={i * 0.08}>
-              <SurfaceCard className="h-full">
-                <StatusTag>{calc.name}</StatusTag>
-                <h3 className="mt-4 font-display text-lg font-medium text-ink">
-                  {calc.route}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">
-                  {calc.body}
-                </p>
-              </SurfaceCard>
-            </Reveal>
+      <Section label="Coverage">
+        <h2 className="t-h2 max-w-[24ch]">What it covers</h2>
+        <ul className="mt-10 border-b border-line">
+          {PAYRECKON_COVERAGE.map((item) => (
+            <li
+              key={item}
+              className="border-t border-line py-4 font-serif text-[1.1875rem] leading-snug text-ink"
+            >
+              {item}
+            </li>
           ))}
+        </ul>
+      </Section>
+
+      <Section label="The product">
+        <h2 className="t-h2 max-w-[24ch]">
+          Three arrangements, three different answers.
+        </h2>
+        <p className="t-body mt-6 max-w-[40rem]">{PAYRECKON.problem}</p>
+        <h2 className="t-h2 mt-16 max-w-[24ch]">One tax engine behind all three.</h2>
+        <p className="t-body mt-6 max-w-[40rem]">{PAYRECKON.built}</p>
+      </Section>
+
+      <Section label="The calculators">
+        <h2 className="t-h2 max-w-[24ch]">Every route you can be paid through</h2>
+        <div className="mt-12">
+          <Rows>
+            {PAYRECKON_CALCULATORS.map((calc) => (
+              <Row key={calc.name} term={calc.route} hint={calc.name}>
+                {calc.body}
+              </Row>
+            ))}
+          </Rows>
         </div>
       </Section>
 
-      <Section tone="panel" className="border-t border-line">
-        <Reveal>
-          <Eyebrow>Why the numbers hold</Eyebrow>
-          <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            A calculator is only worth the rigour behind it.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 lg:grid-cols-2">
-          {PAYRECKON_RIGOUR.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.07}>
-              <SurfaceCard className="h-full">
-                <h3 className="font-display text-lg font-medium text-ink">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">
-                  {item.body}
-                </p>
-              </SurfaceCard>
-            </Reveal>
-          ))}
+      <Section label="Why the numbers hold">
+        <h2 className="t-h2 max-w-[24ch]">
+          A calculator is only worth the rigour behind it.
+        </h2>
+        <div className="mt-12">
+          <Rows>
+            {PAYRECKON_RIGOUR.map((item) => (
+              <Row key={item.title} term={item.title}>
+                {item.body}
+              </Row>
+            ))}
+          </Rows>
         </div>
       </Section>
 
-      <Section className="border-t border-line">
-        <Reveal>
-          <Eyebrow>Who uses it</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Built for people making the decision.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {PAYRECKON_AUDIENCE.map((item, i) => (
-            <Reveal key={item.title} delay={i * 0.08}>
-              <SurfaceCard className="h-full">
-                <h3 className="font-display text-lg font-medium text-ink">
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">
-                  {item.body}
-                </p>
-              </SurfaceCard>
-            </Reveal>
-          ))}
+      <Section label="Who uses it">
+        <h2 className="t-h2 max-w-[24ch]">Built for people making the decision</h2>
+        <div className="mt-12">
+          <Rows>
+            {PAYRECKON_AUDIENCE.map((item) => (
+              <Row key={item.title} term={item.title}>
+                {item.body}
+              </Row>
+            ))}
+          </Rows>
         </div>
       </Section>
 
-      <Section tone="panel" className="border-t border-line">
-        <Reveal>
-          <div className="mx-auto max-w-3xl text-center">
-            <Eyebrow>Why it is on this site</Eyebrow>
-            <p className="mt-6 text-lg leading-relaxed text-slate">
-              PayReckon is not a security product, and it is not client work. It
-              is here because it is the same discipline applied to my own
-              codebase: correctness held by tests rather than by care, every
-              figure traceable to its source, and automated gates that fail the
-              build rather than relying on someone remembering to check.
-            </p>
-            <p className="mt-4 text-lg leading-relaxed text-slate">
-              That is what I am asking clients to trust me with. This is where
-              it is visible.
-            </p>
-          </div>
-        </Reveal>
+      <Section label="Why it is here">
+        <h2 className="t-h2 max-w-[24ch]">Why it is on this site</h2>
+        <p className="t-body mt-6 max-w-[40rem]">
+          PayReckon is not a security product, and it is not client work. It is
+          here because it is the same discipline applied to my own codebase:
+          correctness held by tests rather than by care, every figure traceable
+          to its source, and automated gates that fail the build rather than
+          relying on someone remembering to check.
+        </p>
+        <p className="t-body mt-4 max-w-[40rem]">
+          That is what I am asking clients to trust me with. This is where it is
+          visible.
+        </p>
       </Section>
 
-      <Section className="border-t border-line">
-        <Reveal>
-          <SurfaceCard raised className="px-8 py-14 text-center sm:px-16">
-            <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-              Work out what you would actually take home.
-            </h2>
-            <p className="mx-auto mt-5 max-w-xl leading-relaxed text-slate">
-              Put your numbers in and compare all three arrangements side by
-              side.
-            </p>
-            <div className="mt-9 flex flex-wrap justify-center gap-3">
-              <ExternalPrimaryButton href={PAYRECKON_URL}>
-                Open PayReckon
-              </ExternalPrimaryButton>
-              <ExternalSecondaryButton href={PAYRECKON_FEEDBACK_URL}>
-                Leave feedback
-              </ExternalSecondaryButton>
-            </div>
-            <p className="mx-auto mt-8 max-w-xl text-sm leading-relaxed text-slate">
-              {PAYRECKON_DISCLAIMER}
-            </p>
-          </SurfaceCard>
-        </Reveal>
+      <Section label="Try it">
+        <h2 className="t-h2 max-w-[24ch]">
+          Work out what you would actually take home.
+        </h2>
+        <p className="t-body mt-6 max-w-[40rem]">
+          Put your numbers in and compare all three arrangements side by side.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <ExternalPrimaryButton href={PAYRECKON_URL}>Open PayReckon</ExternalPrimaryButton>
+          <ExternalTextLink href={PAYRECKON_FEEDBACK_URL}>Leave feedback</ExternalTextLink>
+        </div>
+        <p className="t-small mt-8 max-w-[40rem]">{PAYRECKON_DISCLAIMER}</p>
       </Section>
 
-      <Section tone="panel" className="border-t border-line">
-        <Reveal className="text-center">
-          <h2 className="font-display text-2xl font-semibold tracking-tight text-ink sm:text-3xl">
-            Need the security side instead?
-          </h2>
-          <p className="mx-auto mt-4 max-w-xl leading-relaxed text-slate">
-            Cybersecurity, DevSecOps, and cloud architecture — delivered
-            directly, with no layers in between.
-          </p>
-          <div className="mt-8 flex flex-wrap justify-center gap-3">
-            <PrimaryButton href="/contact">Start a conversation</PrimaryButton>
-            <SecondaryButton href="/case-studies">
-              See consultancy work
-            </SecondaryButton>
-          </div>
-        </Reveal>
+      <Section label="Security work">
+        <h2 className="t-h2 max-w-[24ch]">Need the security side instead?</h2>
+        <p className="t-body mt-6 max-w-[40rem]">
+          Cybersecurity, DevSecOps and cloud architecture, delivered directly by
+          me.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <PrimaryButton href="/contact">Start a conversation</PrimaryButton>
+          <TextLink href="/case-studies">See consultancy work</TextLink>
+        </div>
       </Section>
     </>
   );

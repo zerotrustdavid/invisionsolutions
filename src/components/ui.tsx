@@ -2,84 +2,124 @@ import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import type { ReactNode } from "react";
 
-function Section({
+/**
+ * Page furniture.
+ *
+ * The layout is a running page rather than a stack of banded cards: a narrow
+ * left rail carries the name of each section and the content sits in a wide
+ * column beside it, separated by hairline rules. Pages vary what goes in the
+ * column (rows, columns, prose, a definition list) so the rhythm comes from the
+ * content and not from one repeated container.
+ */
+
+const WIDTH = "mx-auto w-full max-w-[72rem] px-6 sm:px-10";
+
+function Container({
   children,
   className = "",
-  id,
-  tone = "paper",
 }: {
   children: ReactNode;
   className?: string;
+}) {
+  return <div className={`${WIDTH} ${className}`}>{children}</div>;
+}
+
+/**
+ * A section with its name in the rail. `label` is plain sentence case: it names
+ * the section, it does not decorate it. The rail sticks on wide screens so the
+ * name stays beside long content.
+ */
+function Section({
+  label,
+  children,
+  id,
+  className = "",
+  rule = true,
+}: {
+  label?: string;
+  children: ReactNode;
   id?: string;
-  tone?: "paper" | "panel";
+  className?: string;
+  rule?: boolean;
 }) {
   return (
     <section
       id={id}
-      className={`px-6 py-20 sm:px-10 sm:py-28 ${tone === "panel" ? "bg-panel-alt" : "bg-paper"} ${className}`}
+      className={`${rule ? "border-t border-line" : ""} ${className}`}
     >
-      <div className="mx-auto max-w-6xl">{children}</div>
+      <div
+        className={`${WIDTH} grid gap-x-12 gap-y-5 py-16 sm:py-24 lg:grid-cols-[11rem_minmax(0,1fr)]`}
+      >
+        <div>
+          {label && (
+            <p className="t-label lg:sticky lg:top-28">{label}</p>
+          )}
+        </div>
+        <div className="min-w-0">{children}</div>
+      </div>
     </section>
   );
 }
 
-function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <p className="font-mono text-xs uppercase tracking-[0.28em] text-gold-ink">
-      {children}
-    </p>
-  );
-}
-
-function SurfaceCard({
+/** A heading block for the top of a page. */
+function PageHead({
+  title,
+  lede,
   children,
-  className = "",
-  raised = false,
-  id,
 }: {
-  children: ReactNode;
-  className?: string;
-  raised?: boolean;
-  id?: string;
+  title: ReactNode;
+  lede?: ReactNode;
+  children?: ReactNode;
 }) {
   return (
-    <div
-      id={id}
-      className={`${raised ? "surface-raised" : "surface"} rounded-xl p-6 sm:p-8 ${className}`}
-    >
+    <header className={`${WIDTH} pb-16 pt-16 sm:pb-20 sm:pt-24`}>
+      <h1 className="t-h1 max-w-[22ch]">{title}</h1>
+      {lede && <p className="t-lede mt-7 max-w-[40rem]">{lede}</p>}
       {children}
-    </div>
+    </header>
   );
 }
 
-function PrimaryButton({ href, children }: { href: string; children: ReactNode }) {
+const BUTTON =
+  "inline-flex items-center gap-2 rounded-[3px] px-5 py-3 font-sans text-[0.9375rem] font-medium leading-none transition-colors";
+
+/** The one solid call to action on a page. */
+function PrimaryButton({
+  href,
+  children,
+}: {
+  href: string;
+  children: ReactNode;
+}) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-88"
+      className={`${BUTTON} bg-ink text-paper hover:bg-accent`}
     >
       {children}
     </Link>
   );
 }
 
-function SecondaryButton({ href, children }: { href: string; children: ReactNode }) {
+/** A quieter link that still reads as a link. */
+function TextLink({ href, children }: { href: string; children: ReactNode }) {
   return (
     <Link
       href={href}
-      className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-ink/35 hover:bg-panel"
+      className="font-sans text-[0.9375rem] font-medium text-ink underline decoration-accent decoration-1 underline-offset-[0.32em] transition-[text-decoration-thickness] hover:decoration-2"
     >
       {children}
+      <span aria-hidden="true"> →</span>
     </Link>
   );
 }
 
 /**
- * Buttons for links that leave the site. Kept separate from the internal
- * variants so `target`/`rel` and the outbound affordance can never be
- * forgotten at a call site — `rel="noopener"` in particular is a security
- * requirement, not a stylistic one, since without it the opened page gets a
- * handle on this one via `window.opener`.
+ * Links that leave the site. Kept separate from the internal variants so
+ * `target`/`rel` and the outbound affordance can never be forgotten at a call
+ * site. `rel="noopener"` in particular is a security requirement, not a
+ * stylistic one: without it the opened page gets a handle on this one via
+ * `window.opener`.
  */
 function ExternalPrimaryButton({
   href,
@@ -93,7 +133,7 @@ function ExternalPrimaryButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-full bg-ink px-6 py-3 font-sans text-sm font-medium text-paper transition-opacity hover:opacity-88"
+      className={`${BUTTON} bg-ink text-paper hover:bg-accent`}
     >
       {children}
       <ArrowUpRight size={16} aria-hidden="true" />
@@ -102,7 +142,7 @@ function ExternalPrimaryButton({
   );
 }
 
-function ExternalSecondaryButton({
+function ExternalTextLink({
   href,
   children,
 }: {
@@ -114,51 +154,60 @@ function ExternalSecondaryButton({
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center gap-2 rounded-full border border-ink/15 px-6 py-3 font-sans text-sm font-medium text-ink transition-colors hover:border-ink/35 hover:bg-panel"
+      className="inline-flex items-center gap-1.5 font-sans text-[0.9375rem] font-medium text-ink underline decoration-accent decoration-1 underline-offset-[0.32em] transition-[text-decoration-thickness] hover:decoration-2"
     >
       {children}
-      <ArrowUpRight size={16} aria-hidden="true" />
+      <ArrowUpRight size={15} aria-hidden="true" />
       <span className="sr-only">(opens in a new tab)</span>
     </a>
   );
 }
 
-function NumberedStep({
-  number,
-  title,
+/**
+ * A ruled list. Each row is a term on the left and its description on the
+ * right, separated from the next by a hairline. Used for services, process and
+ * anything else that is a sequence of named things.
+ */
+function Rows({ children }: { children: ReactNode }) {
+  return <div className="border-b border-line">{children}</div>;
+}
+
+function Row({
+  term,
   children,
+  hint,
+  as: Heading = "h3",
 }: {
-  number: string;
-  title: string;
+  term: ReactNode;
   children: ReactNode;
+  hint?: ReactNode;
+  /**
+   * Heading level for the term. Defaults to h3, which is right when the rows
+   * sit under an h2. Use h2 where nothing above them is a section heading, so
+   * the outline never skips a level.
+   */
+  as?: "h2" | "h3";
 }) {
   return (
-    <div className="flex gap-5">
-      <span className="font-mono text-2xl font-light text-gold-ink">{number}</span>
+    <div className="grid gap-x-10 gap-y-3 border-t border-line py-8 md:grid-cols-[15rem_minmax(0,1fr)]">
       <div>
-        <h3 className="font-display text-xl font-medium text-ink">{title}</h3>
-        <p className="mt-2 leading-relaxed text-slate">{children}</p>
+        <Heading className="t-h3">{term}</Heading>
+        {hint && <p className="t-label mt-2">{hint}</p>}
       </div>
+      <div className="t-small !text-[1.0625rem] !leading-[1.7]">{children}</div>
     </div>
   );
 }
 
-function StatusTag({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-block rounded-full border border-gold-ink/30 bg-gold/8 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.18em] text-gold-ink">
-      {children}
-    </span>
-  );
-}
-
 export {
+  Container,
   Section,
-  Eyebrow,
-  SurfaceCard,
+  PageHead,
   PrimaryButton,
-  SecondaryButton,
+  TextLink,
   ExternalPrimaryButton,
-  ExternalSecondaryButton,
-  NumberedStep,
-  StatusTag,
+  ExternalTextLink,
+  Rows,
+  Row,
+  WIDTH,
 };
