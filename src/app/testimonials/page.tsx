@@ -118,11 +118,12 @@ export default function TestimonialsPage() {
         <p className="t-small mt-5 max-w-[40rem]">
           You control how it appears, including anonymously, or as private
           feedback that is never published. Nothing goes live without the
-          permission you select. Prefer email? Send it to{" "}
+          permission you select.
+        </p>
+        <p className="t-small mt-5">
           <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
             {PUBLIC_CONTACT_ADDRESS}
           </a>
-          .
         </p>
 
         <div className="mt-12 max-w-[40rem]">

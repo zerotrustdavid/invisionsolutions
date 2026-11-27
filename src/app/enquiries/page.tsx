@@ -26,11 +26,9 @@ export default function EnquiriesPage() {
         lede="Sales, pricing, invoicing, contracts, support on live work or an introduction: it all comes to the same place, and it comes to me directly."
       >
         <p className="t-small mt-8">
-          Prefer email? Send it to{" "}
           <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
             {PUBLIC_CONTACT_ADDRESS}
           </a>
-          .
         </p>
       </PageHead>
 
