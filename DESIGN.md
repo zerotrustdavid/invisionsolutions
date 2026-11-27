@@ -80,8 +80,10 @@ fails if they drift apart, if any text or control pairing misses WCAG AA, and if
 fault it exists for.
 
 **Icons.** The favicon and home-screen icon are the first letter, a serif i with its
-blue dot, in paper on an ink tile. The tile keeps it legible on a light or a dark
-tab strip. A known weakness: an i on a tile also looks like the generic
+blue dot, in paper on an ink square. The square is full-bleed and opaque, with no
+rounded corners and no transparency, because a platform that crops icons or fills
+transparency with white (LinkedIn does) would otherwise show white corners. The
+logo spec checks the corner pixels of both icons. A known weakness: an i on a tile also looks like the generic
 "information" icon, so the icon leans on the dot colour and the serif letterform to
 set it apart. There is no public page of brand files, and none should be added
 without being asked.

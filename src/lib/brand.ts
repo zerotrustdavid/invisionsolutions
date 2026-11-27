@@ -23,8 +23,11 @@ export const BRAND_COLOURS = {
   white: "#FFFFFF",
 } as const;
 
-/** Icon tile: corner radius as a fraction of the tile, and how much of it the letter fills. */
-export const TILE = { radiusRatio: 0.22, fillRatio: 0.56 } as const;
+/**
+ * Icon tile: how much of the square the letter fills. The tile itself is a
+ * full-bleed opaque square, never rounded and never transparent at the corners.
+ */
+export const TILE = { fillRatio: 0.56 } as const;
 
 /**
  * Where to put the letter i (with its dot) inside a square of side `box`, so it
