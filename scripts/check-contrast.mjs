@@ -56,7 +56,6 @@ console.log(
 function brandMismatches(brandSource, stylesheet) {
   const pairs = [
     ["blue", "brand"],
-    ["indigo", "brand-deep"],
     ["ink", "ink"],
     ["paper", "paper"],
     ["slate", "slate"],
@@ -71,8 +70,8 @@ function brandMismatches(brandSource, stylesheet) {
   return out;
 }
 // Self-test: a mismatch MUST be reported, and a match must not be.
-const probeBad = brandMismatches('blue: "#2F7BE0", indigo: "#4B3FA7", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #000000; --color-brand-deep: #4b3fa7; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
-const probeGood = brandMismatches('blue: "#2F7BE0", indigo: "#4B3FA7", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #2f7be0; --color-brand-deep: #4b3fa7; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
+const probeBad = brandMismatches('blue: "#2F7BE0", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #000000; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
+const probeGood = brandMismatches('blue: "#2F7BE0", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #2f7be0; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
 if (probeBad.length !== 1 || probeGood.length !== 0) {
   console.error("SELF-TEST FAILED: the brand-colour sync guard did not tell a mismatch from a match.");
   process.exit(2);
@@ -145,13 +144,14 @@ for (const [theme, t] of Object.entries(THEMES)) {
   }
 }
 
-// The logo, on the page background and on the white icon tile.
+// The logo: both words on the page, the dot as a graphic on the page and on the
+// icon tile, and the letter on the tile.
 for (const [fg, hex, bg, min] of [
-  ["wordmark (brand ink)", "#0f1b2d", "#f6f8fb", 7],
-  ["mark line (brand blue), graphic", "#2f7be0", "#f6f8fb", UI],
-  ["mark line (brand blue), graphic", "#2f7be0", "#ffffff", UI],
-  ["mark dot (brand indigo), graphic", "#4b3fa7", "#f6f8fb", UI],
-  ["mark dot (brand indigo), graphic", "#4b3fa7", "#ffffff", UI],
+  ["wordmark, invision (brand ink)", "#0f1b2d", "#f6f8fb", 7],
+  ["wordmark, solutions (brand slate)", "#46546a", "#f6f8fb", TEXT],
+  ["dot (brand blue), graphic, on the page", "#2f7be0", "#f6f8fb", UI],
+  ["dot (brand blue), graphic, on the icon tile", "#2f7be0", "#0f1b2d", UI],
+  ["icon letter (paper) on the icon tile", "#f6f8fb", "#0f1b2d", TEXT],
 ]) {
   const r = ratio(hex, bg);
   const ok = r >= min;

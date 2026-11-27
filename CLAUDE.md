@@ -57,8 +57,9 @@ changing how the site looks. Three things in it are easy to break:
 - **The brand colours exist twice**: as plain values in `src/lib/brand.ts` and as
   tokens in `globals.css`. They must match; `npm run check:contrast` fails if
   they drift apart.
-- **The wordmark's typeface is `font-wordmark`** (Outfit). It must not follow the
-  site's own faces, because the type is part of the logo.
+- **The logo is outlined paths in `src/lib/wordmark.ts`**, generated from Newsreader.
+  Regenerate it rather than editing the numbers, and do not turn it back into live
+  text with an overlaid dot, which can drift off the letter.
 
 Do not edit case study figures, outcomes or sector labels as part of a design
 change. They are published claims, not design material.

@@ -28,7 +28,7 @@ function Footer() {
       <div className={`${WIDTH} py-16`}>
         <div className="grid gap-12 md:grid-cols-[minmax(0,1.4fr)_repeat(3,minmax(0,1fr))]">
           <div className="max-w-sm">
-            <LogoLockup size={20} />
+            <LogoLockup className="h-7" />
             <p className="t-small mt-5">
               Cybersecurity, DevSecOps and cloud consultancy. I am the
               principal consultant, and I do the work myself.
