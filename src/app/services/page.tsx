@@ -1,15 +1,14 @@
 import type { Metadata } from "next";
 import { ArrowRight } from "lucide-react";
 import { pageMetadata } from "@/lib/metadata";
-import { Reveal } from "@/components/reveal";
-import { Section, Eyebrow, SurfaceCard, PrimaryButton } from "@/components/ui";
+import { Section, PageHead, PrimaryButton, Rows, Row } from "@/components/ui";
 import { SERVICES } from "@/lib/content";
 import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Services",
   description:
-    "Cloud security architecture, DevSecOps, SIEM engineering, compliance, and fractional security leadership — five ways to work with Invision Solutions.",
+    "Cloud security architecture, DevSecOps, SIEM engineering, compliance and fractional security leadership, delivered directly by me as a one-off assessment, a project build or ongoing advisory.",
   path: "/services",
 });
 
@@ -31,93 +30,51 @@ const ENGAGEMENT_MODELS = [
 export default function ServicesPage() {
   return (
     <>
-      <Section className="pt-20 sm:pt-24">
-        <Reveal>
-          <Eyebrow>Services</Eyebrow>
-          <h1 className="mt-3 max-w-3xl font-display text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
-            Five ways to work together — as a one-off assessment, an embedded
-            build, or ongoing advisory.
-          </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-relaxed text-slate">
-            Every engagement is scoped directly with David, not a sales team.
-          </p>
-        </Reveal>
-      </Section>
+      <PageHead
+        title="What I work on, and how we can work together."
+        lede="I scope every engagement directly, so you speak to the person who will do the work."
+      />
 
-      <Section className="!pt-0">
-        <div className="grid gap-6 lg:grid-cols-2">
-          {SERVICES.map((service, i) => (
-            <Reveal key={service.slug} delay={i * 0.07}>
-              <SurfaceCard className="h-full">
-                <span className="font-mono text-xs text-gold-ink">
-                  {String(i + 1).padStart(2, "0")}
-                </span>
-                <h2 className="mt-3 font-display text-2xl font-medium tracking-tight text-ink">
-                  {service.title}
-                </h2>
-                <p className="mt-4 leading-relaxed text-slate">{service.summary}</p>
-              </SurfaceCard>
-            </Reveal>
+      <Section label="Services">
+        <Rows>
+          {SERVICES.map((service) => (
+            <Row key={service.slug} term={service.title} as="h2">
+              {service.summary}
+            </Row>
           ))}
-        </div>
+        </Rows>
       </Section>
 
-      <Section tone="panel" className="border-t border-line">
-        <Reveal>
-          <Eyebrow>Engagement Models</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            How the work is structured.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {ENGAGEMENT_MODELS.map((model, i) => (
-            <Reveal key={model.title} delay={i * 0.1}>
-              <SurfaceCard raised className="h-full">
-                <h3 className="font-display text-lg font-medium text-ink">
-                  {model.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">{model.body}</p>
-              </SurfaceCard>
-            </Reveal>
-          ))}
+      <Section label="Engagement">
+        <h2 className="t-h2 max-w-[24ch]">How the work is structured</h2>
+        <div className="mt-12">
+          <Rows>
+            {ENGAGEMENT_MODELS.map((model) => (
+              <Row key={model.title} term={model.title}>
+                {model.body}
+              </Row>
+            ))}
+          </Rows>
         </div>
-
-        <Reveal delay={0.15}>
-          <p className="mt-10 text-sm leading-relaxed text-slate">
-            Pricing question? Day rates and retainer costs go to{" "}
-            <a
-              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
-              className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
-            >
-              {PUBLIC_CONTACT_ADDRESS}
-            </a>
-            .
-          </p>
-        </Reveal>
+        <p className="t-small mt-10">
+          Pricing question? Day rates and retainer costs go to{" "}
+          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
+            {PUBLIC_CONTACT_ADDRESS}
+          </a>
+          .
+        </p>
       </Section>
 
-      <Section>
-        <Reveal className="surface rounded-2xl px-8 py-14 text-center sm:px-16">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Not sure which model fits? Let&apos;s talk it through.
-          </h2>
-          <div className="mt-8 flex justify-center">
-            <PrimaryButton href="/contact">
-              Start a conversation
-              <ArrowRight size={16} />
-            </PrimaryButton>
-          </div>
-          <p className="mt-6 text-sm text-slate">
-            Or email{" "}
-            <a
-              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
-              className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
-            >
-              {PUBLIC_CONTACT_ADDRESS}
-            </a>
-            .
-          </p>
-        </Reveal>
+      <Section label="Next step">
+        <p className="max-w-[24ch] font-serif text-[clamp(1.8rem,1.1rem+2.6vw,3rem)] leading-[1.1] tracking-[-0.018em] text-ink">
+          Not sure which model fits? Let&rsquo;s talk it through.
+        </p>
+        <div className="mt-10">
+          <PrimaryButton href="/contact">
+            Start a conversation
+            <ArrowRight size={16} aria-hidden="true" />
+          </PrimaryButton>
+        </div>
       </Section>
     </>
   );

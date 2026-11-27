@@ -1,277 +1,178 @@
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { VerificationLedger } from "@/components/verification-ledger";
-import { Reveal } from "@/components/reveal";
 import {
   Section,
-  Eyebrow,
-  SurfaceCard,
   PrimaryButton,
-  SecondaryButton,
+  TextLink,
   ExternalPrimaryButton,
-  NumberedStep,
-  StatusTag,
+  Rows,
+  Row,
+  WIDTH,
 } from "@/components/ui";
-import { SERVICES, CASE_STUDIES, CERTIFICATIONS_AND_STACK } from "@/lib/content";
+import { SERVICES, CASE_STUDIES, CERTIFICATIONS } from "@/lib/content";
 import { PAYRECKON_CALCULATORS, PAYRECKON_URL } from "@/lib/payreckon";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
-const PILLARS = [
+/*
+ * Everything in the letterhead below is already stated elsewhere on this site:
+ * the role and credentials on /approach, the company details in the footer.
+ * Nothing is added here that is not published in full somewhere else.
+ */
+const LETTERHEAD: { term: string; lines: string[] }[] = [
+  { term: "Principal consultant", lines: ["David Levi"] },
+  { term: "Certified", lines: CERTIFICATIONS },
+  { term: "Education", lines: ["BSc Cybersecurity, University of Bolton"] },
   {
-    title: "Direct access, always.",
-    body: "Every engagement is delivered by the person you spoke to on the first call — no account manager, no junior handoff, no diluted context.",
+    term: "Company",
+    lines: ["Invision Solutions Ltd", "No. 16056944, England & Wales"],
   },
-  {
-    title: "Full-stack security depth.",
-    body: "Cloud architecture, DevSecOps, SIEM engineering, and compliance — under one roof, without coordinating four vendors.",
-  },
-  {
-    title: "Zero Trust by default.",
-    body: 'Every recommendation starts from "verify, don\'t assume" — in architecture, in access, and in how the work itself is governed.',
-  },
-];
-
-const PROCESS_SNAPSHOT = [
-  { number: "01", title: "Discover", body: "A direct conversation about the actual problem." },
-  { number: "02", title: "Assess", body: "Hands-on review of the current environment." },
-  { number: "03", title: "Build or Remediate", body: "The implementation work, delivered directly." },
-  { number: "04", title: "Sustain", body: "Handover, documentation, and ongoing advisory." },
 ];
 
 export default function Home() {
   return (
     <>
-      {/* Hero */}
-      <section className="relative overflow-hidden px-6 pb-20 pt-20 sm:px-10 sm:pb-28 sm:pt-28">
-        <div className="relative mx-auto grid w-full max-w-6xl gap-14 lg:grid-cols-[1.35fr_1fr] lg:items-center">
+      <section>
+        <div
+          className={`${WIDTH} grid gap-14 pb-20 pt-16 sm:pb-28 sm:pt-24 lg:grid-cols-[minmax(0,1fr)_19rem] lg:gap-20`}
+        >
           <div>
-            <Eyebrow>Cybersecurity · DevSecOps · Cloud Architecture</Eyebrow>
-            <h1 className="mt-6 font-display text-[2.75rem] font-semibold leading-[1.05] tracking-tight text-ink sm:text-6xl lg:text-[4.25rem]">
-              Senior-level security expertise.
-              <span className="block text-slate">No layers in between.</span>
+            <h1 className="t-display max-w-[16ch]">
+              Security consulting, done by the person you hired.
             </h1>
-            <p className="mt-7 max-w-xl text-lg leading-relaxed text-slate">
-              Invision Solutions is a founder-led cybersecurity, DevSecOps, and
-              cloud consultancy. One principal consultant, direct engagement,
-              enterprise-grade outcomes.
+            <p className="t-lede mt-8 max-w-[38rem]">
+              Invision Solutions is my consultancy. I work on cloud security
+              architecture, DevSecOps, detection engineering and compliance,
+              for engineering teams that want senior judgement without a layer
+              of account managers in between.
             </p>
-            <div className="mt-10 flex flex-wrap gap-3">
+            <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
               <PrimaryButton href="/contact">
                 Start a conversation
-                <ArrowRight size={16} />
+                <ArrowRight size={16} aria-hidden="true" />
               </PrimaryButton>
-              <SecondaryButton href="/services">View services</SecondaryButton>
+              <TextLink href="/services">See what I work on</TextLink>
             </div>
           </div>
 
-          <div className="lg:justify-self-end">
-            <SurfaceCard className="w-full lg:max-w-md">
-              <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-gold-ink">
-                Verification ledger
-              </p>
-              <VerificationLedger
-                className="mt-4"
-                lines={[
-                  "SESSION: DIRECT — NO INTERMEDIARY",
-                  "ROLE: PRINCIPAL CONSULTANT",
-                  "ACCESS MODEL: ZERO TRUST",
-                  "STATUS: VERIFIED",
-                ]}
-              />
-            </SurfaceCard>
-          </div>
+          <dl className="self-end border-t border-line-strong">
+            {LETTERHEAD.map((item) => (
+              <div key={item.term} className="border-b border-line py-4">
+                <dt className="t-label">{item.term}</dt>
+                {item.lines.map((line) => (
+                  <dd key={line} className="text-balance font-serif text-[1.0625rem] leading-snug text-ink">
+                    {line}
+                  </dd>
+                ))}
+              </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* Certifications / stack strip */}
-      <Section tone="panel" className="!py-12 border-y border-line">
-        <p className="text-center font-mono text-xs uppercase tracking-[0.28em] text-slate">
-          Certified &amp; Aligned
+      <Section label="Services">
+        <h2 className="t-h2 max-w-[24ch]">What I work on</h2>
+        <p className="t-body mt-6 max-w-[40rem]">
+          Cloud architecture, DevSecOps, SIEM engineering and compliance from
+          one person, so you are not coordinating four vendors.
         </p>
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-          {CERTIFICATIONS_AND_STACK.map((item) => (
-            <span
-              key={item}
-              className="font-mono text-xs uppercase tracking-wider text-slate"
+        <div className="mt-12">
+          <Rows>
+            {SERVICES.map((service) => (
+              <Row key={service.slug} term={service.title}>
+                {service.summary}
+              </Row>
+            ))}
+          </Rows>
+        </div>
+        <div className="mt-10">
+          <TextLink href="/services">Services and how we can work together</TextLink>
+        </div>
+      </Section>
+
+      <Section label="How I work">
+        <p className="max-w-[34ch] font-serif text-[clamp(1.5rem,1.05rem+1.6vw,2.2rem)] leading-[1.28] tracking-[-0.01em] text-ink">
+          Most consultancies grow by adding people between you and the
+          expertise you are paying for. I do not.
+        </p>
+        <p className="t-body mt-8 max-w-[40rem]">
+          Every call, every architecture decision and every line of Terraform is
+          mine, from the first conversation to the final handover. You never
+          re-explain context to a new face, judgement is not diluted through a
+          chain of approvals, and one person is accountable for the outcome.
+        </p>
+        <p className="t-body mt-5 max-w-[40rem]">
+          Every recommendation starts from &ldquo;verify, don&rsquo;t
+          assume&rdquo;: in architecture, in access, and in how the work itself
+          is governed.
+        </p>
+        <div className="mt-10">
+          <TextLink href="/approach">How an engagement runs</TextLink>
+        </div>
+      </Section>
+
+      <Section label="Selected work">
+        <h2 className="t-h2 max-w-[24ch]">Work I have done</h2>
+        <p className="t-small mt-5 max-w-[36rem]">
+          Anonymised to protect client confidentiality.
+        </p>
+        <div className="mt-12">
+          <Rows>
+            {CASE_STUDIES.slice(0, 3).map((study) => (
+              <Row
+                key={study.title}
+                term={study.title}
+                hint={`${study.discipline} · ${study.tag}`}
+              >
+                {study.situation}
+              </Row>
+            ))}
+          </Rows>
+        </div>
+        <div className="mt-10">
+          <TextLink href="/case-studies">All case studies</TextLink>
+        </div>
+      </Section>
+
+      <Section label="My own product">
+        <h2 className="t-h2">PayReckon</h2>
+        <p className="t-body mt-6 max-w-[40rem]">
+          A live product I designed, built and run. It compares UK take-home pay
+          across umbrella, limited company and PAYE employment behind one shared
+          tax engine, so the comparison is like for like rather than three
+          separate tools disagreeing with each other.
+        </p>
+        <dl className="mt-10 max-w-[40rem] border-t border-line">
+          {PAYRECKON_CALCULATORS.map((calc) => (
+            <div
+              key={calc.name}
+              className="grid grid-cols-[9rem_minmax(0,1fr)] gap-4 border-b border-line py-3"
             >
-              {item}
-            </span>
-          ))}
-        </div>
-      </Section>
-
-      {/* Why Invision */}
-      <Section>
-        <Reveal>
-          <Eyebrow>Why Invision</Eyebrow>
-          <h2 className="mt-3 max-w-2xl font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            The case for one expert instead of a team.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 sm:grid-cols-3">
-          {PILLARS.map((pillar, i) => (
-            <Reveal key={pillar.title} delay={i * 0.1}>
-              <SurfaceCard className="h-full">
-                <h3 className="font-display text-xl font-medium text-ink">
-                  {pillar.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">{pillar.body}</p>
-              </SurfaceCard>
-            </Reveal>
-          ))}
-        </div>
-      </Section>
-
-      {/* Services */}
-      <Section tone="panel" className="border-t border-line">
-        <Reveal>
-          <Eyebrow>Services</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Five ways to work together.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {SERVICES.map((service, i) => (
-            <Reveal key={service.slug} delay={i * 0.07}>
-              <Link href="/services" className="block h-full">
-                <SurfaceCard
-                  raised
-                  className="h-full transition-shadow hover:shadow-md"
-                >
-                  <h3 className="font-display text-lg font-medium text-ink">
-                    {service.title}
-                  </h3>
-                </SurfaceCard>
-              </Link>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10">
-          <SecondaryButton href="/services">
-            View all services
-            <ArrowRight size={16} />
-          </SecondaryButton>
-        </div>
-      </Section>
-
-      {/* Approach snapshot */}
-      <Section>
-        <Reveal>
-          <Eyebrow>Approach</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            A direct, four-step process.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-          {PROCESS_SNAPSHOT.map((step, i) => (
-            <Reveal key={step.number} delay={i * 0.07}>
-              <NumberedStep number={step.number} title={step.title}>
-                {step.body}
-              </NumberedStep>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10">
-          <SecondaryButton href="/approach">
-            Read the full approach
-            <ArrowRight size={16} />
-          </SecondaryButton>
-        </div>
-      </Section>
-
-      {/* Case studies teaser */}
-      <Section tone="panel" className="border-t border-line">
-        <Reveal>
-          <Eyebrow>Case Studies</Eyebrow>
-          <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            A sample of the work.
-          </h2>
-        </Reveal>
-        <div className="mt-12 grid gap-6 lg:grid-cols-3">
-          {CASE_STUDIES.slice(0, 3).map((study, i) => (
-            <Reveal key={study.title} delay={i * 0.1}>
-              <SurfaceCard raised className="h-full">
-                <StatusTag>{study.discipline}</StatusTag>
-                <h3 className="mt-4 font-display text-lg font-medium text-ink">
-                  {study.title}
-                </h3>
-                <p className="mt-3 text-sm leading-relaxed text-slate">
-                  {study.situation}
-                </p>
-              </SurfaceCard>
-            </Reveal>
-          ))}
-        </div>
-        <div className="mt-10">
-          <SecondaryButton href="/case-studies">
-            View all case studies
-            <ArrowRight size={16} />
-          </SecondaryButton>
-        </div>
-      </Section>
-
-      {/* PayReckon — sits before the closing CTA so it reads as a further
-          proof point rather than competing with the contact call to action. */}
-      <Section tone="panel" className="border-t border-line">
-        <div className="grid gap-10 lg:grid-cols-[1.1fr_1fr] lg:items-center">
-          <Reveal>
-            <Eyebrow>Also built here</Eyebrow>
-            <h2 className="mt-3 font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-              PayReckon.
-            </h2>
-            <p className="mt-6 max-w-xl leading-relaxed text-slate">
-              A live product I designed, built, and run. It compares UK
-              take-home pay across umbrella, limited company, and PAYE
-              employment behind one shared tax engine — so the comparison is
-              genuinely like for like, rather than three separate tools
-              disagreeing with each other.
-            </p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <ExternalPrimaryButton href={PAYRECKON_URL}>
-                Open PayReckon
-              </ExternalPrimaryButton>
-              <SecondaryButton href="/payreckon">
-                How it was built
-                <ArrowRight size={16} />
-              </SecondaryButton>
+              <dt className="font-serif text-[1.0625rem] text-ink">{calc.name}</dt>
+              <dd className="t-small">{calc.route}</dd>
             </div>
-          </Reveal>
-
-          <Reveal delay={0.1}>
-            <SurfaceCard raised>
-              <p className="font-mono text-[11px] uppercase tracking-[0.18em] text-slate">
-                Compares
-              </p>
-              <ul className="mt-4 space-y-3">
-                {PAYRECKON_CALCULATORS.map((calc) => (
-                  <li key={calc.name} className="flex flex-wrap items-baseline gap-x-3">
-                    <span className="font-display font-medium text-ink">
-                      {calc.name}
-                    </span>
-                    <span className="text-sm text-slate">{calc.route}</span>
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 border-t border-line pt-4 text-xs leading-relaxed text-slate">
-                Estimates for planning purposes, not financial advice.
-              </p>
-            </SurfaceCard>
-          </Reveal>
+          ))}
+        </dl>
+        <p className="t-label mt-4">
+          Estimates for planning purposes, not financial advice.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <ExternalPrimaryButton href={PAYRECKON_URL}>Open PayReckon</ExternalPrimaryButton>
+          <TextLink href="/payreckon">How it was built</TextLink>
         </div>
       </Section>
 
-      {/* Closing CTA */}
-      <Section>
-        <Reveal className="surface rounded-2xl px-8 py-14 text-center sm:px-16">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-ink sm:text-4xl">
-            Most engagements start with a conversation, not a proposal.
-          </h2>
-          <div className="mt-8 flex justify-center">
-            <PrimaryButton href="/contact">
-              Get in touch
-              <ArrowRight size={16} />
-            </PrimaryButton>
-          </div>
-        </Reveal>
+      <Section label="Contact">
+        <p className="max-w-[26ch] font-serif text-[clamp(1.8rem,1.1rem+2.6vw,3rem)] leading-[1.1] tracking-[-0.018em] text-ink">
+          Most engagements start with a conversation, not a proposal.
+        </p>
+        <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-5">
+          <PrimaryButton href="/contact">
+            Start a conversation
+            <ArrowRight size={16} aria-hidden="true" />
+          </PrimaryButton>
+          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link font-sans text-[0.9375rem]">
+            {PUBLIC_CONTACT_ADDRESS}
+          </a>
+        </div>
       </Section>
     </>
   );

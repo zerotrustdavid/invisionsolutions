@@ -104,7 +104,7 @@ export default function OpengraphImage() {
             letterSpacing: "-0.02em",
           }}
         >
-          Senior-level security expertise. No layers in between.
+          Security consulting, done by the person you hired.
         </div>
 
         <div

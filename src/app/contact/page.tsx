@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
-import { Reveal } from "@/components/reveal";
+import { Section, PageHead } from "@/components/ui";
 import { Web3Form, type Field } from "@/components/web3forms";
-import { Section, Eyebrow } from "@/components/ui";
 import {
   CONTACT_ACCESS_KEY,
   CONTACT_KEY_NAME,
@@ -12,7 +11,7 @@ import {
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
   description:
-    "Start a conversation with David Levi, principal consultant at Invision Solutions. Every message reaches David directly.",
+    "Start a conversation with me, David Levi, principal consultant at Invision Solutions. Every message reaches me directly.",
   path: "/contact",
 });
 
@@ -37,42 +36,31 @@ const FIELDS: Field[] = [
 
 export default function ContactPage() {
   return (
-    <Section className="pt-20 sm:pt-24">
-      <div className="grid gap-12 lg:grid-cols-[1fr_1.3fr] lg:items-start">
-        <Reveal>
-          <Eyebrow>Contact</Eyebrow>
-          <h1 className="mt-3 font-display text-4xl font-semibold leading-[1.1] tracking-tight text-ink sm:text-5xl">
-            Start a conversation.
-          </h1>
-          <p className="mt-6 max-w-md text-lg leading-relaxed text-slate">
-            Every message here reaches David directly — there&apos;s no inbox
-            triage or account team in the way.
-          </p>
-          <p className="mt-6 text-slate">
-            I read and respond to every message personally.
-          </p>
-          <p className="mt-8 text-sm leading-relaxed text-slate">
-            Prefer email? Send it to{" "}
-            <a
-              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
-              className="text-blue-ink underline decoration-blue-ink/30 underline-offset-4 hover:decoration-blue-ink"
-            >
-              {PUBLIC_CONTACT_ADDRESS}
-            </a>
-            .
-          </p>
-        </Reveal>
+    <>
+      <PageHead
+        title="Start a conversation."
+        lede="Every message reaches me directly. There is no triage and no account team in the way. I read and respond to every message personally."
+      >
+        <p className="t-small mt-8">
+          Prefer email? Send it to{" "}
+          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
+            {PUBLIC_CONTACT_ADDRESS}
+          </a>
+          .
+        </p>
+      </PageHead>
 
-        <Reveal delay={0.1}>
+      <Section label="Send a message">
+        <div className="max-w-[40rem]">
           <Web3Form
             accessKey={CONTACT_ACCESS_KEY}
             keyName={CONTACT_KEY_NAME}
             subject="New enquiry — Invision Solutions website"
             fields={FIELDS}
-            successBody="Thanks — your message has been sent. David will get back to you directly."
+            successBody="Thanks. Your message has been sent, and I will get back to you directly."
           />
-        </Reveal>
-      </div>
-    </Section>
+        </div>
+      </Section>
+    </>
   );
 }

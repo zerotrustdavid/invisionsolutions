@@ -1,41 +1,82 @@
 @import "tailwindcss";
 
 /*
- * Light theme. Every text/background pairing below meets WCAG AA (4.5:1).
- * Gold needs two tokens: `gold` is bright enough to carry the brand as a fill
- * or in the logo, but only reaches 2.4:1 on white, so `gold-ink` (5.8:1) is the
- * variant used whenever gold has to be read as text.
+ * Colour tokens.
+ *
+ * Warm paper and a warm near-black rather than pure white and pure black. The
+ * only chromatic colour is the brand gold, used two ways: `gold` as a fill or
+ * rule where it is decoration, and `accent` wherever gold has to be READ as
+ * text or a link, because the brand gold itself only reaches about 2.4:1 on
+ * paper. Every text pairing is checked for contrast in both themes by
+ * scripts/check-contrast.mjs, which fails the build if one slips.
+ *
+ * Names are semantic (paper, ink, slate, faint, line) so a component never
+ * names a colour, only a role. That is also what makes the dark theme a change
+ * of values here and nowhere else.
  */
 :root {
-  --color-paper: #ffffff;
-  --color-panel: #f6f5f1;
-  --color-panel-alt: #faf9f6;
-  --color-ink: #16181d;
-  --color-slate: #5c6068;
-  --color-line: #e5e3dd;
+  color-scheme: light dark;
+
+  --color-paper: #f7f4ed;
+  --color-panel: #efeadf;
+  --color-ink: #16140f;
+  --color-slate: #4b473e;
+  --color-faint: #6a655a;
+  --color-line: #d9d2c1;
+  --color-line-strong: #bdb59f;
+  --color-control: #857e6c;
+  --color-accent: #75590d;
+  --color-danger: #a3281a;
   --color-gold: #c9a227;
+  /* The mark's deep-gold return stroke. brand.ts reads this by name
+     (MARK_COLOURS.return), so it must exist. It is a brand constant, not a
+     theme colour: it is never redefined for the dark theme. */
   --color-gold-ink: #7e6212;
-  --color-blue-ink: #2352be;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --color-paper: #15130f;
+    --color-panel: #1d1a14;
+    --color-ink: #f1ebdd;
+    --color-slate: #c3bcaa;
+    --color-faint: #9d9684;
+    --color-line: #2f2b22;
+    --color-line-strong: #4a4435;
+    --color-control: #7f7865;
+    --color-accent: #dcbb55;
+    --color-danger: #f08a78;
+    --color-gold: #c9a227;
+  }
 }
 
 @theme inline {
   --color-paper: var(--color-paper);
   --color-panel: var(--color-panel);
-  --color-panel-alt: var(--color-panel-alt);
   --color-ink: var(--color-ink);
   --color-slate: var(--color-slate);
+  --color-faint: var(--color-faint);
   --color-line: var(--color-line);
+  --color-line-strong: var(--color-line-strong);
+  --color-control: var(--color-control);
+  --color-accent: var(--color-accent);
+  --color-danger: var(--color-danger);
   --color-gold: var(--color-gold);
   --color-gold-ink: var(--color-gold-ink);
-  --color-blue-ink: var(--color-blue-ink);
 
-  --font-display: var(--font-space-grotesk);
-  --font-sans: var(--font-ibm-plex-sans);
-  --font-mono: var(--font-ibm-plex-mono);
+  --font-serif: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype",
+    Georgia, serif;
+  --font-sans: var(--font-ibm-plex-sans), system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  /* The wordmark only. The mark is one version with no variants, and its type is
+     part of that, so it must not follow the site's display face. */
+  --font-wordmark: var(--font-space-grotesk), system-ui, sans-serif;
 }
 
 html {
   scroll-behavior: smooth;
+  /* Anchors land clear of the sticky header. */
+  scroll-padding-top: 6rem;
 }
 
 body {
@@ -43,34 +84,131 @@ body {
   color: var(--color-ink);
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 ::selection {
   background-color: var(--color-gold);
-  color: var(--color-ink);
+  color: #16140f;
 }
 
 :focus-visible {
-  outline: 2px solid var(--color-gold-ink);
+  outline: 2px solid var(--color-accent);
   outline-offset: 3px;
   border-radius: 2px;
 }
 
 /*
- * Surface card. On a light theme the dark-mode glass treatment reads as muddy,
- * so cards are a flat warm tint with a hairline rule instead.
+ * Typographic roles. Headings and prose are serif; everything that is interface
+ * (navigation, labels, buttons, form fields) is sans. Newsreader carries an
+ * optical-size axis, which the browser drives from the rendered size, so large
+ * headings get the high-contrast cut and small text gets the sturdier one with
+ * no manual tuning.
  */
-.surface {
-  background-color: var(--color-panel);
-  border: 1px solid var(--color-line);
+@layer components {
+  .t-display {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 1.1rem + 4.7vw, 4.5rem);
+    line-height: 1.04;
+    letter-spacing: -0.024em;
+    text-wrap: balance;
+  }
+
+  .t-h1 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.1rem, 1.2rem + 3.2vw, 3.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+  }
+
+  .t-h2 {
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(1.7rem, 1.2rem + 1.7vw, 2.5rem);
+    line-height: 1.13;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+
+  .t-h3 {
+    font-family: var(--font-serif);
+    font-weight: 500;
+    font-size: 1.4rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+  }
+
+  .t-lede {
+    font-family: var(--font-serif);
+    font-size: clamp(1.2rem, 1.05rem + 0.55vw, 1.42rem);
+    line-height: 1.5;
+    color: var(--color-slate);
+    text-wrap: pretty;
+  }
+
+  .t-body {
+    font-family: var(--font-serif);
+    font-size: 1.1875rem;
+    line-height: 1.65;
+    color: var(--color-slate);
+    text-wrap: pretty;
+  }
+
+  .t-small {
+    font-family: var(--font-sans);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--color-slate);
+  }
+
+  /* Sentence-case, not tracked caps: it labels, it does not decorate. */
+  .t-label {
+    font-family: var(--font-sans);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+    color: var(--color-faint);
+  }
+
+  /* Links inside running text are told apart by underline, not colour alone. */
+  .link {
+    color: var(--color-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--color-accent);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 0.22em;
+    transition: text-decoration-thickness 0.15s;
+  }
+  .link:hover {
+    text-decoration-thickness: 2px;
+  }
+
+  /*
+   * The lockup is one version with no dark colourway. On a dark page it sits on
+   * its white field, exactly as the mark's own tile rule says, and the two
+   * colour roles inside are pinned back to their light values so the wordmark
+   * is not recoloured by the theme. The values are BRAND_COLOURS in
+   * src/lib/brand.ts, repeated here because CSS cannot import them.
+   */
+  .logo-plate {
+    --color-ink: #16181d;
+    --color-slate: #5c6068;
+    --color-gold: #c9a227;
+    --color-gold-ink: #7e6212;
+    --color-paper: #ffffff;
+  }
 }
 
-.surface-raised {
-  background-color: var(--color-paper);
-  border: 1px solid var(--color-line);
-  box-shadow:
-    0 1px 2px rgb(22 24 29 / 0.04),
-    0 8px 24px -12px rgb(22 24 29 / 0.08);
+@media (prefers-color-scheme: dark) {
+  .logo-plate {
+    background: #ffffff;
+    padding: 0.5rem 0.75rem;
+    border-radius: 3px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -81,5 +219,26 @@ body {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@media print {
+  :root {
+    --color-paper: #ffffff;
+    --color-panel: #ffffff;
+    --color-ink: #000000;
+    --color-slate: #222222;
+    --color-faint: #444444;
+    --color-line: #bbbbbb;
+    --color-accent: #000000;
+  }
+  header[data-site-header],
+  [data-skip-link] {
+    display: none !important;
+  }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+    color: #444444;
   }
 }
