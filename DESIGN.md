@@ -97,4 +97,4 @@ once while looking fine:
 - Axe (WCAG 2.2 AA and best practice) on every page at 390px and 1440px, both themes
 - No horizontal scroll at 320, 390, 768 and 1440px
 - Every text block visible with JavaScript disabled
-- The form's outbound request, subject line and honeypot, on all three forms
+- The form's request to `/api/enquiry`, its payload, the honeypot, and that success is shown only when the route says `ok: true` (including a 200 without it), on all three forms

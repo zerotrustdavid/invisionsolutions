@@ -18,36 +18,43 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run check:install-scripts` | Fail if a dependency ships an install script not on the allowlist |
+| `npm run test:enquiry` | Test the enquiry validation and the rate limiter |
 | `npm run check:contrast` | Fail if any text or control pairing misses WCAG AA in either theme, or if the brand's CSS variables go missing |
 
 ## Environment variables
 
-Copy `.env.example` to `.env.local` and fill in the Web3Forms access key:
+Copy `.env.example` to `.env.local` and fill in the Resend key:
 
 ```bash
 cp .env.example .env.local
 ```
 
-Without a key set, the form reports that it is not configured rather than submitting.
+Forms post to `/api/enquiry`, which sends each submission by email through Resend. All the configuration is **server-only**: none of it has a `NEXT_PUBLIC_` prefix, nothing reaches the client bundle, and a change in the hosting dashboard applies to the next deployment as usual.
 
-Web3Forms access keys are **publishable, not secret**. They are prefixed `NEXT_PUBLIC_`, inlined into the client bundle at build time, and readable by anyone viewing source on the deployed site. Keeping them out of the source tree is hygiene, not confidentiality. Because they are inlined at build time, changing one in the hosting dashboard has no effect on a deployment that already exists: every environment carrying a form needs a rebuild, not just a variable update.
+| Variable | Needed | Purpose |
+| --- | --- | --- |
+| `RESEND_API_KEY` | Yes | A sending-only Resend API key. Without it the form says the message could not be delivered and logs why; it never reports success. |
+| `ENQUIRY_FROM` | No | The sender. Must be on a domain verified in Resend. Defaults to `website@` on the site's own domain. |
+| `ENQUIRY_TO` | No | Where enquiries go. Defaults to the address the site publishes. |
 
 Deployment and mailbox configuration is documented privately.
 
-There is one Web3Forms form and one key. `/contact`, `/enquiries` and the testimonial form on `/testimonials` all submit with `NEXT_PUBLIC_WEB3FORMS_KEY`, which delivers to `david@invisionsolutions.co.uk`. Each form sets its own subject line, so mail rules can still tell submissions apart.
+`/contact`, `/enquiries` and the testimonial form on `/testimonials` all post to the one route. Each form's subject line is chosen on the server from the form's kind, so mail rules can still tell submissions apart.
 
-This was previously seven forms and eight keys, one per department mailbox. Those forms have been deleted from the Web3Forms account, and nothing reads the old `NEXT_PUBLIC_WEB3FORMS_KEY_*` variables any more. Delete them from the hosting dashboard too: a variable naming a form that no longer exists is the fault that stopped `/contact` delivering in August, and leaving them set invites someone to wire one back up.
+There used to be a third-party form service and a public key. Nothing reads `NEXT_PUBLIC_WEB3FORMS_KEY` or any `NEXT_PUBLIC_WEB3FORMS_KEY_*` variable any more. Delete them from the hosting dashboard so a stale one cannot mislead anybody.
 
 ### When a submission fails
 
-Three unrelated causes used to produce one identical message, which made a failure report carry no information. The form now names the cause on screen, so a screenshot is enough to tell them apart without asking anyone to open a browser console:
+The form names the cause on screen, so a screenshot is enough to tell them apart:
 
-- **"not configured on this deployment"** means the build received no access key, so nobody can submit.
-- **"is not a valid key"** means a value arrived that is not a UUID, so the variable did not reach the build intact. The form stops before the network call rather than sending a request that could only fail.
-- **"the form service rejected it: ..."** means the request reached the service and it declined. Its own message names the reason.
-- **"could not be reached"** means the request never arrived, which is why this one can fail for a single visitor while working for everyone else.
+- **"The message could not be delivered, so nothing was sent"** means the route refused or could not send it: the Resend key is missing or wrong, the sending domain is not verified, or Resend is down. The server log names which, without the visitor's content.
+- **"Some of the details were not accepted"** means a field failed the server's checks.
+- **"Several messages from this connection"** means the rate limit was reached.
+- **"The request did not reach the site"** means the browser could not complete the request.
 
-The distinction between the last two is that `fetch` only rejects when the request did not complete; a rejection by the service resolves normally. Both previously landed in the same branch.
+The form shows success only when the route replies `{ "ok": true }`, which it does only after Resend has returned an id. A bare HTTP 200 is not enough.
+
+`npm run test:enquiry` runs the tests for the rules that decide what may reach the inbox.
 
 ## Brand
 
@@ -73,7 +80,7 @@ There is no public brand-assets page and no downloadable logo files. There was a
 
 `next.config.ts` sets a baseline on every route: Content-Security-Policy, `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy`, `frame-ancestors`, and HSTS. `poweredByHeader` is off.
 
-The CSP `connect-src` must allow `https://api.web3forms.com`. Every form on the site posts there from the browser, so narrowing that directive silently breaks lead capture on `/contact`, `/enquiries` and `/testimonials` at once. A build will not catch it.
+The CSP `connect-src` is `'self'`: the forms post to this site's own `/api/enquiry`, so the browser contacts no other origin. Add an origin there only for a reason that can be stated.
 
 HSTS is sent with `max-age` and `includeSubDomains` but deliberately **without `preload`**. Submission to the preload list is effectively irreversible, and the header should not advertise an intent that has not been decided.
 
@@ -87,10 +94,12 @@ Also served: `/sitemap.xml`, `/robots.txt` and `/.well-known/security.txt`. The 
 
 - `src/app/icon.tsx`, `src/app/opengraph-image.tsx`: favicon and social card, generated at build time
 - `src/app/globals.css`: design tokens for both themes, typographic roles, and the logo's pinned colours. See `DESIGN.md`
-- `src/components/*`: header, footer, logo, page furniture (`ui.tsx`), social icons, Web3Forms form
+- `src/components/*`: header, footer, logo, page furniture (`ui.tsx`), social icons, the enquiry form
 - `src/lib/brand.ts`: mark geometry, colour roles, wordmark metrics
 - `src/lib/content.ts`: services and case study copy, shared between the Home teasers and the full pages
-- `src/lib/mailboxes.ts`: the single Web3Forms access key and the addresses the site publishes
+- `src/app/api/enquiry/route.ts`: the one server route; sends form submissions through Resend and is the one place the mail environment is read
+- `src/lib/enquiry.ts`: what a submission may contain, how it is checked and what the email looks like. Imports nothing, so `scripts/test-enquiry.mjs` tests it directly
+- `src/lib/mailboxes.ts`: the address the site publishes
 - `src/lib/metadata.ts`: canonical URL and per-page metadata helper
 - `src/lib/payreckon.ts`: PayReckon product copy, with sourcing rules in the file header
 

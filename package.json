@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "check:install-scripts": "node scripts/check-install-scripts.mjs",
-    "check:contrast": "node scripts/check-contrast.mjs"
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "test:enquiry": "node scripts/test-enquiry.mjs"
   },
   "dependencies": {
     "lucide-react": "^1.28.0",

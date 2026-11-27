@@ -57,9 +57,11 @@ export default function PrivacyPage() {
 
         <h2 className={HEADING}>Who else handles it</h2>
         <p className={`${PROSE} mt-4`}>
-          Submissions pass through Web3Forms, a form-processing service, which
-          sends them on to my email inbox. It acts on my instructions and may
-          process data outside the UK. This site is hosted on Vercel, which keeps
+          When you send a form, this site passes it to Resend, an email delivery
+          service, which sends it to my mailbox. Resend keeps a record of the
+          emails it sends, and that record can include what you wrote. It acts
+          on my instructions and may process data outside the UK. This site is
+          hosted on Vercel, which keeps
           the technical request logs that any host keeps, such as the page
           requested and the IP address it was requested from. I do not sell
           personal data and I do not use it for marketing.
