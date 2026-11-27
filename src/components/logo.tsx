@@ -46,7 +46,7 @@ function LogoMark({ size = 32, tile = false }: { size?: number; tile?: boolean }
       focusable="false"
     >
       {tile && (
-        <rect width={box} height={box} rx={box * TILE.radiusRatio} fill={BRAND_COLOURS.ink} />
+        <rect width={box} height={box} fill={BRAND_COLOURS.ink} />
       )}
       <g transform={`translate(${tx} ${ty}) scale(${s})`}>
         <path d={LETTER_I.path} fill={tile ? BRAND_COLOURS.paper : BRAND_COLOURS.ink} />
