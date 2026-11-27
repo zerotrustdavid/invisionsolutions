@@ -38,11 +38,9 @@ export default function ContactPage() {
         lede="Every message reaches me directly. There is no triage and no account team in the way. I read and respond to every message personally."
       >
         <p className="t-small mt-8">
-          Prefer email? Send it to{" "}
           <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
             {PUBLIC_CONTACT_ADDRESS}
           </a>
-          .
         </p>
       </PageHead>
 
