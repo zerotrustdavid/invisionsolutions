@@ -9,7 +9,7 @@ Operational and security records for this site live in a separate **private**
 repository: `zerotrustdavid/invision-security-notes`.
 
 **Read them before starting or resuming work here**, not afterwards to check a
-claim. They carry the current state of the Web3Forms configuration, which
+claim. They carry the current state of the mail configuration, which
 controls are and are not in force, the working protocol, and a list of the
 things that have already gone wrong on this project. That repository's own
 `CLAUDE.md` states the protocol in full.
@@ -26,22 +26,25 @@ not in force goes in here.
 bundle at build time, so changing one in Vercel and reloading shows the old
 value, and looks like the change did not save.
 
-**Do not enable Captcha Protection in the Web3Forms dashboard on its own.** It
-makes the service require a token the forms do not send, which rejects every
-submission from every form. It also cannot be scoped to one page: one Web3Forms
-form serves `/contact`, `/enquiries` and `/testimonials`.
+**Forms must never report a success they did not achieve.** The form shows
+success only when `/api/enquiry` answers `{ "ok": true }`, and the route answers
+that only after Resend has returned an id. A form that said "sent" while nothing
+arrived is the failure this project has already had, so do not weaken either end
+of that, and do not treat a bare HTTP 200 as success.
 
 ## Load-bearing configuration
 
-`next.config.ts` sets the CSP. The `connect-src 'self' https://api.web3forms.com`
-directive is load-bearing: every form posts there from the browser, and
-narrowing it fails lead capture on three pages silently. No build, lint or type
-check catches it.
+`src/app/api/enquiry/route.ts` is the one place the mail environment is read
+(`RESEND_API_KEY`, `ENQUIRY_FROM`, `ENQUIRY_TO`), all server-only. Never give
+any of them a `NEXT_PUBLIC_` prefix: that would compile the value into the
+bundle. Do not reintroduce a `?? FALLBACK` chain of keys: that pattern let a
+broken key hide behind a working one and is how `/contact` failed in August.
 
-`src/lib/mailboxes.ts` holds the single access key read. There is one
-environment read in the whole codebase. Do not reintroduce a `?? FALLBACK` chain
-of per-mailbox keys: that pattern let a broken key hide behind a working one and
-is how `/contact` failed in August.
+The CSP `connect-src` is `'self'` because the forms post to the site's own
+route. Adding an origin widens where injected script could send data.
+
+`npm run test:enquiry` tests the rules that decide what may reach the inbox.
+Run it after touching `src/lib/enquiry.ts`.
 
 ## Design
 

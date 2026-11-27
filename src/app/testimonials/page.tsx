@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
 import { Section, PageHead } from "@/components/ui";
-import { Web3Form, type Field } from "@/components/web3forms";
-import {
-  CONTACT_ACCESS_KEY,
-  CONTACT_KEY_NAME,
-  PUBLIC_CONTACT_ADDRESS,
-} from "@/lib/mailboxes";
+import { EnquiryForm, type Field } from "@/components/enquiry-form";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Testimonials",
@@ -130,10 +126,8 @@ export default function TestimonialsPage() {
         </p>
 
         <div className="mt-12 max-w-[40rem]">
-          <Web3Form
-            accessKey={CONTACT_ACCESS_KEY}
-            keyName={CONTACT_KEY_NAME}
-            subject="New testimonial — Invision Solutions website"
+          <EnquiryForm
+            kind="testimonial"
             fields={FIELDS}
             submitLabel="Submit testimonial"
             successTitle="Testimonial received"

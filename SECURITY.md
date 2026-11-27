@@ -1,8 +1,9 @@
 # Security
 
 This repository holds the marketing site for Invision Solutions Ltd. It is a
-static-rendered Next.js application with no backend, no database, and no user
-accounts. Contact forms post directly from the browser to Web3Forms.
+static-rendered Next.js application with no database and no user accounts. The
+one piece of server code is `/api/enquiry`, which the contact forms post to and
+which sends each submission by email.
 
 ## Reporting a vulnerability
 
@@ -28,52 +29,49 @@ automated scanner output submitted without a demonstrated impact.
 Do not submit real enquiries through the contact forms as test traffic. They go
 to a working business inbox.
 
-## The Web3Forms access keys are publishable, and that is not a finding
+## How the forms work
 
-The `NEXT_PUBLIC_WEB3FORMS_KEY*` values are visible in the client bundle. This is
-by design, it is documented by the provider, and it is not a vulnerability
-report I need.
+The three forms (`/contact`, `/enquiries`, `/testimonials`) post JSON to
+`/api/enquiry` on the site's own origin. That route, in
+`src/app/api/enquiry/route.ts`, checks the request and emails it through Resend.
+Nothing about delivery is configured in the browser: the Resend key is a
+server-only environment variable with no `NEXT_PUBLIC_` prefix, so it is never
+compiled into the client bundle.
 
-The specifics, so a reviewer can judge for themselves rather than take my word:
+What the route does. The input rules are tested in `scripts/test-enquiry.mjs`; I
+exercised the rest against a build, with a stub in place of the mail provider,
+before release:
 
-- The keys carry the `NEXT_PUBLIC_` prefix, which means Next inlines them into
-  the JavaScript bundle at build time. Anyone can read them from the deployed
-  site. Their presence in a build is not a leak; it is the mechanism working.
-- A key identifies a form. A form's recipients are configured in the provider's
-  dashboard and cannot be overridden by the client, which is what stops the
-  endpoint being an open relay.
-- The realistic risk is therefore **spam and quota consumption**, not disclosure
-  of anything confidential.
-- There is **no way to rotate a key**. The access key *is* the form identifier.
-  Deleting the form is the only way to invalidate one. Any report recommending
-  rotation is describing a control this provider does not offer.
+- Accepts only the three known form kinds, and only listed fields, each with a
+  length limit. The subject line comes from the kind, never from the submission,
+  and the visitor's email goes only into `Reply-To`, after a check that it is a
+  single address with no line breaks.
+- Refuses a cross-site browser request (an `Origin` that is not this site).
+- Treats a filled honeypot field as spam: it answers as if it worked and sends
+  nothing.
+- Applies a rate limit that is held in memory per server instance. That slows one
+  noisy client and protects the mail quota against a simple loop; it is **not** a
+  global limit, and it is not presented as the control that makes the form safe
+  from abuse.
+- Reports success only after Resend has accepted the message and returned an id.
+  Missing configuration or a refused send is an error the visitor sees.
+- Does not write the content of a submission to the logs.
 
-### On the domain restriction
-
-The provider offers a "Restrict to Domains" setting, and it is enabled.
-
-It is worth being accurate about what it does: it is enforced against a request
-header that any client can set. It raises the effort required to reuse a key
-elsewhere. **It does not prevent abuse, and it is not the control that settles
-the question.** It is not presented here as one.
+The realistic risk for a contact form is spam and quota use rather than
+disclosure of anything confidential. I would like to hear about a way around the
+checks above.
 
 ## What the automated scanning does and does not catch
 
 CI runs gitleaks across full history on every pull request, configured by
 `.gitleaks.toml`.
 
-The important part is a deliberate backstop rule matching **any bare UUID
-literal** in source, not merely a UUID assigned to something called "key" or
-"secret". That rule exists because the obvious identifier-based rule misses the
-realistic case: a real key pasted into a test fixture and assigned to a constant
-with an innocuous name.
-
-Stated plainly, because it would be easy to imply otherwise: **GitHub's secret
-scanning and push protection would not have caught this credential class
-either.** A bare UUID has too little entropy and no distinguishing prefix for a
-generic detector to flag without unusable false-positive rates. Those features
-are enabled on their own merits. Neither is the control that covers Web3Forms
-keys. The backstop rule is.
+It includes a deliberate backstop rule matching **any bare UUID literal** in
+source. It dates from when the site used a form key that was a bare UUID, which a
+generic detector cannot flag without unusable false-positive rates, and it is
+kept because a real key pasted into a test fixture under an innocuous name is
+the realistic way such a credential is leaked. It is not a statement about the
+credential the site holds today.
 
 ## Dependency and supply-chain handling
 
@@ -99,6 +97,4 @@ HSTS is sent with `max-age` and `includeSubDomains` and deliberately **without
 `preload`**. Preload submission is effectively irreversible, and the header
 should not advertise an intent that has not been decided.
 
-The CSP `connect-src` must continue to allow `https://api.web3forms.com`. Every
-form on the site posts there from the browser, so tightening that directive
-breaks lead capture on three pages at once, and a build will not catch it.
+The CSP `connect-src` is `'self'`, because the forms post to this site's own route. Adding an origin there widens where injected script could send data.

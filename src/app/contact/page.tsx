@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
 import { Section, PageHead } from "@/components/ui";
-import { Web3Form, type Field } from "@/components/web3forms";
-import {
-  CONTACT_ACCESS_KEY,
-  CONTACT_KEY_NAME,
-  PUBLIC_CONTACT_ADDRESS,
-} from "@/lib/mailboxes";
+import { EnquiryForm, type Field } from "@/components/enquiry-form";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -52,10 +48,8 @@ export default function ContactPage() {
 
       <Section label="Send a message">
         <div className="max-w-[40rem]">
-          <Web3Form
-            accessKey={CONTACT_ACCESS_KEY}
-            keyName={CONTACT_KEY_NAME}
-            subject="New enquiry — Invision Solutions website"
+          <EnquiryForm
+            kind="contact"
             fields={FIELDS}
             successBody="Thanks. Your message has been sent, and I will get back to you directly."
           />

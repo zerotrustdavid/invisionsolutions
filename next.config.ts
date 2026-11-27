@@ -3,12 +3,11 @@ import type { NextConfig } from "next";
 /**
  * Content-Security-Policy.
  *
- * The single directive that carries operational risk here is `connect-src`.
- * Every form on the site (on /contact, /enquiries and /testimonials) posts to
- * api.web3forms.com with `fetch` from the browser. Removing that origin does not
- * fail a build, does not fail a lint, and does not fail a type check. It fails
- * lead capture on three pages at once, silently, in production. Treat it as
- * load-bearing.
+ * `connect-src` is `'self'` only. Every form on the site (on /contact,
+ * /enquiries and /testimonials) posts to this site's own /api/enquiry route, so
+ * the browser contacts no other origin. Adding an origin here widens what a
+ * script injected into the page could send data to; do it only for a reason
+ * that can be stated.
  *
  * On `'unsafe-inline'` in `script-src`, stated plainly rather than dressed up:
  * Next's App Router emits inline bootstrap and streaming scripts. Removing
@@ -34,8 +33,7 @@ const csp = [
   "font-src 'self'",
   // data: covers the build-time generated icon and Open Graph card.
   "img-src 'self' data: blob:",
-  // Load-bearing. See the note above.
-  "connect-src 'self' https://api.web3forms.com",
+  "connect-src 'self'",
   // The forms submit via fetch; this covers the no-JS native fallback.
   "form-action 'self'",
   "frame-ancestors 'none'",

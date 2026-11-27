@@ -6,8 +6,8 @@ useDefault = true
 
 # Why this file exists at all.
 #
-# The credential class this repository actually handles is the Web3Forms access
-# key: a bare UUID. gitleaks 8.21.2, run correctly across full history with
+# The credential class this repository handled when this file was written was
+# the form access key of the service it then used: a bare UUID. gitleaks 8.21.2, run correctly across full history with
 # --log-opts="--all", exits clean on a repository containing a live one. So does
 # GitHub's own secret scanning. Neither is broken; a bare UUID simply carries too
 # little entropy and no distinguishing prefix for a generic detector to flag it

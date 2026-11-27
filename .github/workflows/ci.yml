@@ -15,10 +15,10 @@ on:
 permissions:
   contents: read
 
-# No secrets are referenced anywhere in this file. The only credential this
-# project handles is a publishable Web3Forms key, and none of these jobs need it:
-# `next build` succeeds without it, and the resulting bundle simply reports the
-# form as unconfigured.
+# No secrets are referenced anywhere in this file. The credential this project
+# handles is a server-only Resend key, and none of these jobs need it: `next
+# build` succeeds without it, and a running site without it reports the forms as
+# not delivering rather than pretending.
 
 env:
   # Pinned by version and verified against a pinned digest below. Fetched
@@ -66,6 +66,11 @@ jobs:
       - name: Contrast and brand-variable check
         run: npm run check:contrast
 
+      # The rules that decide what may reach the inbox. Node 22 imports the
+      # TypeScript file directly, so there is no extra tooling to install.
+      - name: Enquiry tests
+        run: npm run test:enquiry
+
       - name: Build
         run: npm run build
 
@@ -95,9 +100,9 @@ jobs:
       #   --log-opts="--all"  scans every ref, not just the current branch.
       #   -c .gitleaks.toml   loads the bare-UUID backstop rule. Without it the
       #                       default rule set alone returns a clean result on a
-      #                       repository containing a live Web3Forms key, because
-      #                       a bare UUID carries too little entropy to trip a
-      #                       generic detector.
+      #                       repository containing a live UUID-style form key,
+      #                       because a bare UUID carries too little entropy to
+      #                       trip a generic detector.
       #
       # On exit codes, all measured rather than assumed:
       #
