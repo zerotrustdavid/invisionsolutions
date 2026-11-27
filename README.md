@@ -34,7 +34,7 @@ Web3Forms access keys are **publishable, not secret**. They are prefixed `NEXT_P
 
 Deployment and mailbox configuration is documented privately.
 
-There is one Web3Forms form and one key. `/contact`, `/enquiries` and the testimonial form on `/testimonials` all submit with `NEXT_PUBLIC_WEB3FORMS_KEY`, which delivers to `contact@invisionsolutions.co.uk`. Each form sets its own subject line, so mail rules can still tell submissions apart.
+There is one Web3Forms form and one key. `/contact`, `/enquiries` and the testimonial form on `/testimonials` all submit with `NEXT_PUBLIC_WEB3FORMS_KEY`, which delivers to `david@invisionsolutions.co.uk`. Each form sets its own subject line, so mail rules can still tell submissions apart.
 
 This was previously seven forms and eight keys, one per department mailbox. Those forms have been deleted from the Web3Forms account, and nothing reads the old `NEXT_PUBLIC_WEB3FORMS_KEY_*` variables any more. Delete them from the hosting dashboard too: a variable naming a form that no longer exists is the fault that stopped `/contact` delivering in August, and leaving them set invites someone to wire one back up.
 

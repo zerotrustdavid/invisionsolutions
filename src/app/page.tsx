@@ -20,7 +20,6 @@ import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 const LETTERHEAD: { term: string; lines: string[] }[] = [
   { term: "Principal consultant", lines: ["David Levi"] },
   { term: "Certified", lines: CERTIFICATIONS },
-  { term: "Education", lines: ["BSc Cybersecurity, University of Bolton"] },
   {
     term: "Company",
     lines: ["Invision Solutions Ltd", "No. 16056944, England & Wales"],

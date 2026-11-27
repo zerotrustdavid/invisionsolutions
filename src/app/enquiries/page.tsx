@@ -46,7 +46,7 @@ export default function EnquiriesPage() {
             subject="General enquiry — Invision Solutions website"
             fields={FIELDS}
             submitLabel="Send"
-            successBody={`Thanks. Your message is on its way to ${PUBLIC_CONTACT_ADDRESS}.`}
+            successBody="Thanks. Your message is on its way to me."
           />
         </div>
       </Section>

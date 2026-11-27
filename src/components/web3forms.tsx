@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, type FormEvent, type ReactNode } from "react";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export type Field = {
   name: string;
@@ -316,10 +317,10 @@ function Web3Form({
           <p className="font-sans text-[0.9375rem] text-danger">
             Something went wrong sending that. Please try again, or email{" "}
             <a
-              href="mailto:contact@invisionsolutions.co.uk"
+              href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
               className="underline underline-offset-4"
             >
-              contact@invisionsolutions.co.uk
+              {PUBLIC_CONTACT_ADDRESS}
             </a>{" "}
             directly.
           </p>
