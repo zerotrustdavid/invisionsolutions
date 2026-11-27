@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
-import { Section, PageHead } from "@/components/ui";
+import { Section, PageHead, EmailLink } from "@/components/ui";
 import { EnquiryForm, type Field } from "@/components/enquiry-form";
-import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Contact",
@@ -38,9 +37,7 @@ export default function ContactPage() {
         lede="Every message reaches me directly. There is no triage and no account team in the way. I read and respond to every message personally."
       >
         <p className="t-small mt-8">
-          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
-            {PUBLIC_CONTACT_ADDRESS}
-          </a>
+          <EmailLink />
         </p>
       </PageHead>
 

@@ -1,8 +1,7 @@
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
-import { Section, PageHead } from "@/components/ui";
+import { Section, PageHead, EmailLink } from "@/components/ui";
 import { EnquiryForm, type Field } from "@/components/enquiry-form";
-import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 export const metadata: Metadata = pageMetadata({
   title: "Testimonials",
@@ -121,9 +120,7 @@ export default function TestimonialsPage() {
           permission you select.
         </p>
         <p className="t-small mt-5">
-          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link">
-            {PUBLIC_CONTACT_ADDRESS}
-          </a>
+          <EmailLink />
         </p>
 
         <div className="mt-12 max-w-[40rem]">

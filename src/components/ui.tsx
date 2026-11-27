@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Mail } from "lucide-react";
+import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 import type { ReactNode } from "react";
 
 /**
@@ -199,6 +200,32 @@ function Row({
   );
 }
 
+/**
+ * The published contact address as a mailto link with an envelope icon, for the
+ * places where the address stands on its own as a way to get in touch. Where it
+ * sits inside a sentence it stays plain text, because an icon there would
+ * interrupt the reading. The icon is decorative: the link's accessible name is
+ * the address itself. The underline is on the text only, so it does not run
+ * under the icon.
+ */
+function EmailLink({ className = "" }: { className?: string }) {
+  return (
+    <a
+      href={`mailto:${PUBLIC_CONTACT_ADDRESS}`}
+      className={`inline-flex items-center gap-2 ${className}`}
+    >
+      <Mail
+        size={16}
+        strokeWidth={1.75}
+        className="shrink-0 text-accent"
+        aria-hidden="true"
+        focusable="false"
+      />
+      <span className="link">{PUBLIC_CONTACT_ADDRESS}</span>
+    </a>
+  );
+}
+
 export {
   Container,
   Section,
@@ -207,6 +234,7 @@ export {
   TextLink,
   ExternalPrimaryButton,
   ExternalTextLink,
+  EmailLink,
   Rows,
   Row,
   WIDTH,
