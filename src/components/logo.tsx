@@ -1,48 +1,64 @@
-import { BRAND_COLOURS, DOOR_PATH, DOT, GRID, STROKE } from "@/lib/brand";
+import { BRAND_COLOURS, TILE, fitLetter } from "@/lib/brand";
+import { LETTER_I, WORDMARK } from "@/lib/wordmark";
 
 /**
- * The mark: an open hexagon with a dot inside. One version, on the light theme.
- * `size` is its height and width in pixels.
+ * The lockup: "invision solutions" in lowercase serif, with the dot over the
+ * first i in the brand blue. Drawn as paths, so it needs no font and the dot
+ * cannot drift. Size it with the height: pass a class such as `h-7`.
  */
-function LogoMark({ size = 32 }: { size?: number }) {
+function LogoLockup({ className = "h-7" }: { className?: string }) {
   return (
     <svg
-      width={size}
-      height={size}
-      viewBox={`0 0 ${GRID} ${GRID}`}
+      viewBox={WORDMARK.viewBox}
+      className={`${className} w-auto`}
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       aria-hidden="true"
+      focusable="false"
     >
-      <path
-        d={DOOR_PATH}
-        stroke={BRAND_COLOURS.blue}
-        strokeWidth={STROKE}
-        strokeLinecap="round"
-        strokeLinejoin="round"
+      <path d={WORDMARK.ink} fill={BRAND_COLOURS.ink} />
+      <path d={WORDMARK.slate} fill={BRAND_COLOURS.slate} />
+      <circle
+        cx={WORDMARK.dot.cx}
+        cy={WORDMARK.dot.cy}
+        r={WORDMARK.dot.r}
+        fill={BRAND_COLOURS.blue}
       />
-      <circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill={BRAND_COLOURS.indigo} />
     </svg>
   );
 }
 
 /**
- * The lockup: mark beside the full name. The name is set in the wordmark face,
- * which is deliberately separate from the site's own type so the logo does not
- * move when the typography does.
+ * The mark: the first letter alone, a serif i with its blue dot. On a tile it is
+ * the icon form, ink with a paper letter, for avatars and app icons.
  */
-function LogoLockup({ size = 20 }: { size?: number }) {
+function LogoMark({ size = 32, tile = false }: { size?: number; tile?: boolean }) {
+  const box = 100;
+  const { s, tx, ty } = fitLetter(box, tile ? TILE.fillRatio : 0.92);
   return (
-    <span className="inline-flex items-center gap-2.5">
-      <LogoMark size={size * 1.55} />
-      <span
-        className="whitespace-nowrap font-wordmark text-ink"
-        style={{ fontSize: size, fontWeight: 400, letterSpacing: "0.005em", lineHeight: 1 }}
-      >
-        Invision Solutions
-      </span>
-    </span>
+    <svg
+      width={size}
+      height={size}
+      viewBox={`0 0 ${box} ${box}`}
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+      focusable="false"
+    >
+      {tile && (
+        <rect width={box} height={box} rx={box * TILE.radiusRatio} fill={BRAND_COLOURS.ink} />
+      )}
+      <g transform={`translate(${tx} ${ty}) scale(${s})`}>
+        <path d={LETTER_I.path} fill={tile ? BRAND_COLOURS.paper : BRAND_COLOURS.ink} />
+        <circle
+          cx={LETTER_I.dot.cx}
+          cy={LETTER_I.dot.cy}
+          r={LETTER_I.dot.r}
+          fill={BRAND_COLOURS.blue}
+        />
+      </g>
+    </svg>
   );
 }
 
-export { LogoMark, LogoLockup };
+export { LogoLockup, LogoMark };

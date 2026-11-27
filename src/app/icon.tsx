@@ -1,30 +1,24 @@
 import { ImageResponse } from "next/og";
-import { BRAND_COLOURS, DOOR_PATH, DOT, DOT_ICON_R, GRID, STROKE_ICON, TILE } from "@/lib/brand";
+import { BRAND_COLOURS, TILE, fitLetter } from "@/lib/brand";
+import { LETTER_I } from "@/lib/wordmark";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 /**
- * Favicon: the mark on a white tile, with a heavier line than the logo because
- * it is read at 16 to 32px. The white field keeps it legible on a dark tab
- * strip, where the indigo dot would otherwise sink.
+ * Favicon: the serif i with its blue dot, paper on an ink tile. The tile is what
+ * keeps it legible on both a light and a dark tab strip.
  */
 export default function Icon() {
-  const scale = TILE.fillRatio;
-  const offset = (GRID - GRID * scale) / 2;
+  const box = 100;
+  const { s, tx, ty } = fitLetter(box, 0.62);
   return new ImageResponse(
     (
-      <svg width={32} height={32} viewBox={`0 0 ${GRID} ${GRID}`} fill="none">
-        <rect width={GRID} height={GRID} rx={GRID * TILE.radiusRatio} fill={BRAND_COLOURS.white} />
-        <g transform={`translate(${offset} ${offset}) scale(${scale})`}>
-          <path
-            d={DOOR_PATH}
-            stroke={BRAND_COLOURS.blue}
-            strokeWidth={STROKE_ICON}
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-          <circle cx={DOT.cx} cy={DOT.cy} r={DOT_ICON_R} fill={BRAND_COLOURS.indigo} />
+      <svg width={32} height={32} viewBox={`0 0 ${box} ${box}`} fill="none">
+        <rect width={box} height={box} rx={box * TILE.radiusRatio} fill={BRAND_COLOURS.ink} />
+        <g transform={`translate(${tx} ${ty}) scale(${s})`}>
+          <path d={LETTER_I.path} fill={BRAND_COLOURS.paper} />
+          <circle cx={LETTER_I.dot.cx} cy={LETTER_I.dot.cy} r={LETTER_I.dot.r} fill={BRAND_COLOURS.blue} />
         </g>
       </svg>
     ),

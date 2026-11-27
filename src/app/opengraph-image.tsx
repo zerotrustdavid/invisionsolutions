@@ -1,22 +1,22 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import { BRAND_COLOURS, DOOR_PATH, DOT, GRID, STROKE } from "@/lib/brand";
+import { BRAND_COLOURS } from "@/lib/brand";
+import { WORDMARK } from "@/lib/wordmark";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
  * Satori does not apply variable-font axes, so the card loads static files
- * (Outfit for the wordmark, Newsreader for the headline, IBM Plex Sans for the
- * line beneath) rather than the variable files the site itself uses. All three
- * are licensed under the SIL Open Font License.
+ * (Newsreader for the headline, IBM Plex Sans for the line beneath) rather than
+ * the variable files the site itself uses. Both are licensed under the SIL Open
+ * Font License. The logo is drawn from paths and needs no font.
  *
  * Read at build time: this route is prerendered, so process.cwd() is the
  * project root.
  */
 const fontDir = join(process.cwd(), "src/app/_fonts");
-const outfit = readFileSync(join(fontDir, "outfit-400.woff"));
 const newsreader = readFileSync(join(fontDir, "newsreader-400.woff"));
 const plex = readFileSync(join(fontDir, "ibm-plex-sans-500.woff"));
 
@@ -34,34 +34,16 @@ export default function OpengraphImage() {
           padding: "84px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
-          <svg width={84} height={84} viewBox={`0 0 ${GRID} ${GRID}`} fill="none">
-            <path
-              d={DOOR_PATH}
-              stroke={BRAND_COLOURS.blue}
-              strokeWidth={STROKE}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-            <circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill={BRAND_COLOURS.indigo} />
-          </svg>
-          <div
-            style={{
-              display: "flex",
-              fontFamily: "Outfit",
-              fontSize: 54,
-              color: BRAND_COLOURS.ink,
-              letterSpacing: "0.005em",
-            }}
-          >
-            Invision Solutions
-          </div>
-        </div>
+        <svg width={Math.round((66 * WORDMARK.width) / WORDMARK.height)} height={66} viewBox={WORDMARK.viewBox} fill="none">
+          <path d={WORDMARK.ink} fill={BRAND_COLOURS.ink} />
+          <path d={WORDMARK.slate} fill={BRAND_COLOURS.slate} />
+          <circle cx={WORDMARK.dot.cx} cy={WORDMARK.dot.cy} r={WORDMARK.dot.r} fill={BRAND_COLOURS.blue} />
+        </svg>
 
         <div
           style={{
             display: "flex",
-            marginTop: 56,
+            marginTop: 64,
             fontFamily: "Newsreader",
             fontSize: 72,
             lineHeight: 1.08,
@@ -89,7 +71,6 @@ export default function OpengraphImage() {
     {
       ...size,
       fonts: [
-        { name: "Outfit", data: outfit, weight: 400, style: "normal" },
         { name: "Newsreader", data: newsreader, weight: 400, style: "normal" },
         { name: "IBM Plex Sans", data: plex, weight: 500, style: "normal" },
       ],

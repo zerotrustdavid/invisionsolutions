@@ -37,14 +37,14 @@ column (a ruled list, prose, a definition list, labelled rows), not from one
 repeated container.
 
 **Type.** Newsreader (serif, with an optical-size axis) for headings and prose;
-IBM Plex Sans for interface: navigation, labels, buttons, form fields. Outfit is
-loaded for the wordmark and for nothing else. Labels are sentence case, not
-tracked capitals.
+IBM Plex Sans for interface: navigation, labels, buttons, form fields. Labels are
+sentence case, not tracked capitals. The logo is also Newsreader, but as outlined
+paths rather than live text (see below), so it does not depend on the page's font.
 
 **Colour.** Cool paper and a deep blue-black ink, with one chromatic family:
 blue. `accent` is the darker blue that is safe to read, used for links, focus
-and buttons. `brand` and `brand-deep` are the mark's blue and indigo; they pass
-only as graphics (3:1), so they are never used for text. Names are roles (paper,
+and buttons. `brand` is the logo's blue dot; it passes only as a graphic (3:1), so it is
+never used for text. Names are roles (paper,
 ink, slate, faint, line, control, accent, danger), so a component never names a
 colour and the palette is a change of values in one file.
 
@@ -64,22 +64,27 @@ told apart by colour alone.
 
 ## Constraints that outrank taste
 
-**The mark and the wordmark.** The mark is an open hexagon drawn as one line with
-a gap on one side, and a dot inside: the view in, and the one person you deal
-with. The wordmark is "Invision Solutions" in Outfit, beside it. The type is part
-of the logo, so `font-wordmark` must never follow the site's own faces.
+**The logo.** The name in lowercase serif, "invision solutions", with one coloured
+thing in it: the dot over the first i, in the brand blue. One point, one person
+doing the work. "invision" is ink and "solutions" is slate. The letters are
+outlines generated from Newsreader at weight 500 and optical size 24 and live in
+`src/lib/wordmark.ts`: that file is generated, so change the logo by
+regenerating it, not by editing the numbers. Because they are paths there is no
+font to load and the dot cannot drift off the letter.
 
 **The brand colours exist twice, and must agree.** `src/lib/brand.ts` holds them
 as plain values (what the logo, icons and social card draw with) and
 `globals.css` holds them as tokens (what the page uses). `npm run check:contrast`
 fails if they drift apart, if any text or control pairing misses WCAG AA, and if a
-`prefers-color-scheme: dark` rule appears in the stylesheet. Each guard has been
-shown to fail on the fault it exists for.
+`prefers-color-scheme: dark` rule appears. Each guard has been shown to fail on the
+fault it exists for.
 
-**Icons.** The favicon and the home-screen icon put the mark on a white tile with
-a heavier line, because they are read at 16 to 32px and the indigo dot would sink
-on a dark tab strip. There is no public page of brand files, and none should be
-added without being asked.
+**Icons.** The favicon and home-screen icon are the first letter, a serif i with its
+blue dot, in paper on an ink tile. The tile keeps it legible on a light or a dark
+tab strip. A known weakness: an i on a tile also looks like the generic
+"information" icon, so the icon leans on the dot colour and the serif letterform to
+set it apart. There is no public page of brand files, and none should be added
+without being asked.
 
 **Case study figures, outcomes and sector labels are not design material.** They
 are published claims about client results, and whether they have been verified is

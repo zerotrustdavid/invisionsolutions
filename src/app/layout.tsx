@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Newsreader, IBM_Plex_Sans, Outfit } from "next/font/google";
+import { Newsreader, IBM_Plex_Sans } from "next/font/google";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SITE_URL, SITE_NAME, ORGANISATION_JSON_LD } from "@/lib/metadata";
@@ -22,17 +22,6 @@ const ibmPlexSans = IBM_Plex_Sans({
   variable: "--font-ibm-plex-sans",
   subsets: ["latin"],
   weight: ["400", "500", "600"],
-  display: "swap",
-});
-
-/*
- * The wordmark's face. Used by the logo lockup and nothing else, so the logo
- * does not move when the site's typography does.
- */
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-  weight: ["400"],
   display: "swap",
 });
 
@@ -80,7 +69,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-GB"
-      className={`${newsreader.variable} ${ibmPlexSans.variable} ${outfit.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${ibmPlexSans.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <a

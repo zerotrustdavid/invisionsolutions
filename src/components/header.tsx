@@ -30,16 +30,10 @@ function Header() {
           onClick={() => setOpen(false)}
           className="shrink-0"
         >
-          {/* No aria-label: the accessible name is built from the visible
-              lockup text, so what a voice-control user sees is what they can
-              say. "home" is added for screen readers only. */}
-          <span className="hidden sm:inline-flex">
-            <LogoLockup size={20} />
-          </span>
-          <span className="inline-flex sm:hidden">
-            <LogoLockup size={17} />
-          </span>
-          <span className="sr-only">, home</span>
+          {/* The lockup is an image of the name, so the accessible name comes
+              from the text below, read by screen readers only. */}
+          <LogoLockup className="h-6 sm:h-7" />
+          <span className="sr-only">Invision Solutions, home</span>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-8 lg:flex">

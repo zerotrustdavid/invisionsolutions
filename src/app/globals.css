@@ -5,8 +5,8 @@
  *
  * Cool paper and a deep blue-black ink, with one chromatic family: blue. The
  * `accent` is the darker blue that is safe to READ, used for links, focus and
- * buttons. `brand` and `brand-deep` are the mark's two colours; they pass only
- * as graphics (3:1), so they are never used for text. Every text pairing is
+ * buttons. `brand` is the logo's dot; it passes only as a graphic (3:1), so it is
+ * never used for text. Every text pairing is
  * checked for contrast by scripts/check-contrast.mjs, which also fails if the
  * brand colours here drift from the copy in src/lib/brand.ts.
  *
@@ -32,7 +32,6 @@
   --color-accent: #1f5fbf;
   --color-danger: #b42318;
   --color-brand: #2f7be0;
-  --color-brand-deep: #4b3fa7;
 }
 
 @theme inline {
@@ -47,15 +46,11 @@
   --color-accent: var(--color-accent);
   --color-danger: var(--color-danger);
   --color-brand: var(--color-brand);
-  --color-brand-deep: var(--color-brand-deep);
 
   --font-serif: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype",
     Georgia, serif;
   --font-sans: var(--font-ibm-plex-sans), system-ui, -apple-system, "Segoe UI",
     sans-serif;
-  /* The wordmark only. Its type is part of the logo, so it must not follow the
-     site's own faces when those change. */
-  --font-wordmark: var(--font-outfit), system-ui, sans-serif;
 }
 
 html {
