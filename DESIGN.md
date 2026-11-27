@@ -61,9 +61,9 @@ told apart by colour alone.
 
 **The contact address** is a mailto link with an envelope icon (`EmailLink` in
 `ui.tsx`) wherever it stands on its own as a way to get in touch: the home page's
-closing line and the contact, enquiries and testimonials pages. Inside a sentence
-(`/services`, `/privacy`) and in the footer's list of text links it stays plain
-text, because an icon there would interrupt the reading or the list. The icon is
+closing line, the contact, enquiries and testimonials pages, and the footer's
+contact list on every page. Inside a sentence (`/services`, `/privacy`) it stays
+plain text, because an icon there would interrupt the reading. The icon is
 decorative and hidden from assistive technology, so the link's name is just the
 address, and the underline sits under the text only.
 

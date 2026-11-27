@@ -1,8 +1,7 @@
 import Link from "next/link";
 import { LogoLockup } from "./logo";
 import { SocialLinks } from "./social-icons";
-import { WIDTH } from "./ui";
-import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
+import { WIDTH, EmailLink } from "./ui";
 
 const SITE_LINKS = [
   { href: "/services", label: "Services" },
@@ -52,9 +51,7 @@ function Footer() {
                 {link.label}
               </Link>
             ))}
-            <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link font-sans text-[0.9375rem]">
-              {PUBLIC_CONTACT_ADDRESS}
-            </a>
+            <EmailLink className="self-start font-sans text-[0.9375rem]" />
           </nav>
 
           <div className="flex flex-col gap-3">
