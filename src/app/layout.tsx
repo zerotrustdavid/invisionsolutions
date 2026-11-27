@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Newsreader, IBM_Plex_Sans, Space_Grotesk } from "next/font/google";
+import { Newsreader, IBM_Plex_Sans, Outfit } from "next/font/google";
 import { Header } from "@/components/header";
 import { Footer } from "@/components/footer";
 import { SITE_URL, SITE_NAME, ORGANISATION_JSON_LD } from "@/lib/metadata";
@@ -26,15 +26,14 @@ const ibmPlexSans = IBM_Plex_Sans({
 });
 
 /*
- * The wordmark's face. Used by the logo lockup and nothing else: the mark is one
- * version with no variants, and its type is part of it, so it must not move when
- * the site's typography does. Weights are exactly the ones the logo has always
- * loaded.
+ * The wordmark's face. Used by the logo lockup and nothing else, so the logo
+ * does not move when the site's typography does.
  */
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-space-grotesk",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  weight: ["400"],
+  display: "swap",
 });
 
 const TITLE = "Invision Solutions | Cybersecurity, DevSecOps and cloud consultancy";
@@ -65,17 +64,12 @@ export const metadata: Metadata = {
 };
 
 /*
- * Both schemes are declared: the page has a designed light theme and a designed
- * dark theme, and this tells the browser so. It is not claimed to prevent a
- * browser or extension from force-darkening the page; that could not be
- * reproduced in testing.
+ * Light only. `colorScheme: "light"` stops the browser choosing dark form
+ * controls and scrollbars for a visitor whose system is set to dark.
  */
 export const viewport: Viewport = {
-  colorScheme: "light dark",
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "#f7f4ed" },
-    { media: "(prefers-color-scheme: dark)", color: "#15130f" },
-  ],
+  colorScheme: "light",
+  themeColor: "#f6f8fb",
 };
 
 export default function RootLayout({
@@ -86,7 +80,7 @@ export default function RootLayout({
   return (
     <html
       lang="en-GB"
-      className={`${newsreader.variable} ${ibmPlexSans.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${newsreader.variable} ${ibmPlexSans.variable} ${outfit.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">
         <a

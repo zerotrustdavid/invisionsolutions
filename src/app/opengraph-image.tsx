@@ -1,32 +1,24 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { ImageResponse } from "next/og";
-import {
-  ASPECT,
-  BRAND_COLOURS,
-  CLOUD_ARC,
-  RETURN_ARC,
-  STROKE,
-  VIEWBOX,
-  WORDMARK,
-} from "@/lib/brand";
+import { BRAND_COLOURS, DOOR_PATH, DOT, GRID, STROKE } from "@/lib/brand";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 /**
- * Satori does not apply variable-font axes, and next/font ships Space Grotesk
- * as a single variable file for all three weights — so without these the card
- * silently fell back to a generic sans and never matched the site's type at
- * all. These are static instances cut from that variable font at 700 and 500.
+ * Satori does not apply variable-font axes, so the card loads static files
+ * (Outfit for the wordmark, Newsreader for the headline, IBM Plex Sans for the
+ * line beneath) rather than the variable files the site itself uses. All three
+ * are licensed under the SIL Open Font License.
  *
  * Read at build time: this route is prerendered, so process.cwd() is the
  * project root.
  */
 const fontDir = join(process.cwd(), "src/app/_fonts");
-const grotesk700 = readFileSync(join(fontDir, "space-grotesk-700.ttf"));
-const grotesk500 = readFileSync(join(fontDir, "space-grotesk-500.ttf"));
-const plexMono = readFileSync(join(fontDir, "ibm-plex-mono-400.ttf"));
+const outfit = readFileSync(join(fontDir, "outfit-400.woff"));
+const newsreader = readFileSync(join(fontDir, "newsreader-400.woff"));
+const plex = readFileSync(join(fontDir, "ibm-plex-sans-500.woff"));
 
 export default function OpengraphImage() {
   return new ImageResponse(
@@ -40,67 +32,41 @@ export default function OpengraphImage() {
           justifyContent: "center",
           backgroundColor: BRAND_COLOURS.paper,
           padding: "84px",
-          fontFamily: "Space Grotesk",
         }}
       >
-        {/* Row lockup. The card is 630px tall and mostly headline, so the
-            stacked lockup would crowd it. */}
-        <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-          <svg width={72 * ASPECT} height={72} viewBox={VIEWBOX} fill="none">
-            {/* Gold line, deep-gold return — the light-tone roles. */}
+        <div style={{ display: "flex", alignItems: "center", gap: 22 }}>
+          <svg width={84} height={84} viewBox={`0 0 ${GRID} ${GRID}`} fill="none">
             <path
-              d={CLOUD_ARC}
-              stroke={BRAND_COLOURS.gold}
+              d={DOOR_PATH}
+              stroke={BRAND_COLOURS.blue}
               strokeWidth={STROKE}
-              fill="none"
               strokeLinecap="round"
               strokeLinejoin="round"
             />
-            <path
-              d={RETURN_ARC}
-              stroke={BRAND_COLOURS.goldInk}
-              strokeWidth={STROKE}
-              fill="none"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
+            <circle cx={DOT.cx} cy={DOT.cy} r={DOT.r} fill={BRAND_COLOURS.indigo} />
           </svg>
-          {/* The company is Invision Solutions — the card says so, and the
-              descriptor is tracked to span the name as it does everywhere. */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 42,
-                fontWeight: 700,
-                color: BRAND_COLOURS.ink,
-              }}
-            >
-              INVISION
-            </div>
-            <div
-              style={{
-                display: "flex",
-                fontSize: 42 * WORDMARK.sublineRatio,
-                fontWeight: 500,
-                letterSpacing: `${WORDMARK.sublineTracking}em`,
-                color: BRAND_COLOURS.slate,
-                marginTop: 6,
-              }}
-            >
-              SOLUTIONS
-            </div>
+          <div
+            style={{
+              display: "flex",
+              fontFamily: "Outfit",
+              fontSize: 54,
+              color: BRAND_COLOURS.ink,
+              letterSpacing: "0.005em",
+            }}
+          >
+            Invision Solutions
           </div>
         </div>
 
         <div
           style={{
             display: "flex",
-            marginTop: 48,
-            fontSize: 62,
-            lineHeight: 1.1,
+            marginTop: 56,
+            fontFamily: "Newsreader",
+            fontSize: 72,
+            lineHeight: 1.08,
             color: BRAND_COLOURS.ink,
-            maxWidth: 940,
+            maxWidth: 960,
             letterSpacing: "-0.02em",
           }}
         >
@@ -110,24 +76,22 @@ export default function OpengraphImage() {
         <div
           style={{
             display: "flex",
-            marginTop: 36,
-            fontSize: 22,
-            letterSpacing: "0.18em",
-            textTransform: "uppercase",
+            marginTop: 40,
+            fontFamily: "IBM Plex Sans",
+            fontSize: 26,
             color: BRAND_COLOURS.slate,
-            fontFamily: "IBM Plex Mono",
           }}
         >
-          Cybersecurity · DevSecOps · Cloud Architecture
+          Cybersecurity, DevSecOps and cloud architecture
         </div>
       </div>
     ),
     {
       ...size,
       fonts: [
-        { name: "Space Grotesk", data: grotesk700, weight: 700, style: "normal" },
-        { name: "Space Grotesk", data: grotesk500, weight: 500, style: "normal" },
-        { name: "IBM Plex Mono", data: plexMono, weight: 400, style: "normal" },
+        { name: "Outfit", data: outfit, weight: 400, style: "normal" },
+        { name: "Newsreader", data: newsreader, weight: 400, style: "normal" },
+        { name: "IBM Plex Sans", data: plex, weight: 500, style: "normal" },
       ],
     },
   );

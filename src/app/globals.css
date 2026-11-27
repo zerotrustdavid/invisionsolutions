@@ -1,53 +1,38 @@
 @import "tailwindcss";
 
 /*
- * Colour tokens.
+ * Colour tokens. One theme, and it is light.
  *
- * Warm paper and a warm near-black rather than pure white and pure black. The
- * only chromatic colour is the brand gold, used two ways: `gold` as a fill or
- * rule where it is decoration, and `accent` wherever gold has to be READ as
- * text or a link, because the brand gold itself only reaches about 2.4:1 on
- * paper. Every text pairing is checked for contrast in both themes by
- * scripts/check-contrast.mjs, which fails the build if one slips.
+ * Cool paper and a deep blue-black ink, with one chromatic family: blue. The
+ * `accent` is the darker blue that is safe to READ, used for links, focus and
+ * buttons. `brand` and `brand-deep` are the mark's two colours; they pass only
+ * as graphics (3:1), so they are never used for text. Every text pairing is
+ * checked for contrast by scripts/check-contrast.mjs, which also fails if the
+ * brand colours here drift from the copy in src/lib/brand.ts.
  *
- * Names are semantic (paper, ink, slate, faint, line) so a component never
- * names a colour, only a role. That is also what makes the dark theme a change
- * of values here and nowhere else.
+ * There is deliberately no dark theme. `color-scheme: light` tells the browser
+ * the page is light only, so it does not pick dark form controls or scrollbars
+ * for a visitor whose system is set to dark, and nothing below varies with
+ * `prefers-color-scheme`.
+ *
+ * Names are roles (paper, ink, slate, faint, line), so a component never names
+ * a colour, only a role.
  */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 
-  --color-paper: #f7f4ed;
-  --color-panel: #efeadf;
-  --color-ink: #16140f;
-  --color-slate: #4b473e;
-  --color-faint: #6a655a;
-  --color-line: #d9d2c1;
-  --color-line-strong: #bdb59f;
-  --color-control: #857e6c;
-  --color-accent: #75590d;
-  --color-danger: #a3281a;
-  --color-gold: #c9a227;
-  /* The mark's deep-gold return stroke. brand.ts reads this by name
-     (MARK_COLOURS.return), so it must exist. It is a brand constant, not a
-     theme colour: it is never redefined for the dark theme. */
-  --color-gold-ink: #7e6212;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --color-paper: #15130f;
-    --color-panel: #1d1a14;
-    --color-ink: #f1ebdd;
-    --color-slate: #c3bcaa;
-    --color-faint: #9d9684;
-    --color-line: #2f2b22;
-    --color-line-strong: #4a4435;
-    --color-control: #7f7865;
-    --color-accent: #dcbb55;
-    --color-danger: #f08a78;
-    --color-gold: #c9a227;
-  }
+  --color-paper: #f6f8fb;
+  --color-panel: #eaeff6;
+  --color-ink: #0f1b2d;
+  --color-slate: #46546a;
+  --color-faint: #586882;
+  --color-line: #d5dde9;
+  --color-line-strong: #b9c5d6;
+  --color-control: #6b7c97;
+  --color-accent: #1f5fbf;
+  --color-danger: #b42318;
+  --color-brand: #2f7be0;
+  --color-brand-deep: #4b3fa7;
 }
 
 @theme inline {
@@ -61,16 +46,16 @@
   --color-control: var(--color-control);
   --color-accent: var(--color-accent);
   --color-danger: var(--color-danger);
-  --color-gold: var(--color-gold);
-  --color-gold-ink: var(--color-gold-ink);
+  --color-brand: var(--color-brand);
+  --color-brand-deep: var(--color-brand-deep);
 
   --font-serif: var(--font-newsreader), "Iowan Old Style", "Palatino Linotype",
     Georgia, serif;
   --font-sans: var(--font-ibm-plex-sans), system-ui, -apple-system, "Segoe UI",
     sans-serif;
-  /* The wordmark only. The mark is one version with no variants, and its type is
-     part of that, so it must not follow the site's display face. */
-  --font-wordmark: var(--font-space-grotesk), system-ui, sans-serif;
+  /* The wordmark only. Its type is part of the logo, so it must not follow the
+     site's own faces when those change. */
+  --font-wordmark: var(--font-outfit), system-ui, sans-serif;
 }
 
 html {
@@ -88,8 +73,8 @@ body {
 }
 
 ::selection {
-  background-color: var(--color-gold);
-  color: #16140f;
+  background-color: var(--color-accent);
+  color: var(--color-paper);
 }
 
 :focus-visible {
@@ -185,29 +170,6 @@ body {
   }
   .link:hover {
     text-decoration-thickness: 2px;
-  }
-
-  /*
-   * The lockup is one version with no dark colourway. On a dark page it sits on
-   * its white field, exactly as the mark's own tile rule says, and the two
-   * colour roles inside are pinned back to their light values so the wordmark
-   * is not recoloured by the theme. The values are BRAND_COLOURS in
-   * src/lib/brand.ts, repeated here because CSS cannot import them.
-   */
-  .logo-plate {
-    --color-ink: #16181d;
-    --color-slate: #5c6068;
-    --color-gold: #c9a227;
-    --color-gold-ink: #7e6212;
-    --color-paper: #ffffff;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  .logo-plate {
-    background: #ffffff;
-    padding: 0.5rem 0.75rem;
-    border-radius: 3px;
   }
 }
 

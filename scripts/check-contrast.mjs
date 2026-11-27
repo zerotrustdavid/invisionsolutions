@@ -3,11 +3,11 @@
  *
  * Reads the real token values out of src/app/globals.css, so it checks what
  * ships rather than a copy that can drift, then verifies every text and
- * interface pairing the design relies on, in both themes.
+ * interface pairing the design relies on. The site has one theme, a light one.
  *
  * It begins with a self-test. A contrast check that has never reported a
  * failure proves nothing when it reports a pass, so two known cases are run
- * first: the brand gold on white, which is about 2.4:1 and must FAIL AA text,
+ * first: a pale gold on white, which is about 2.4:1 and must FAIL AA text,
  * and black on white, which must pass. If the checker cannot tell those apart
  * it exits non-zero before looking at the site at all.
  *
@@ -36,43 +36,63 @@ function ratio(a, b) {
 }
 
 // ---- Self-test: must be able to fail, and must be able to pass. -------------
-const knownBad = ratio("#c9a227", "#ffffff"); // brand gold on white, ~2.4
+const knownBad = ratio("#c9a227", "#ffffff"); // a pale gold on white, ~2.4
 const knownGood = ratio("#000000", "#ffffff"); // 21
 if (!(knownBad < 3 && knownGood > 20)) {
   console.error(
-    `SELF-TEST FAILED: gold on white measured ${knownBad.toFixed(2)} and black on white ${knownGood.toFixed(2)}. The checker cannot be trusted.`,
+    `SELF-TEST FAILED: pale gold on white measured ${knownBad.toFixed(2)} and black on white ${knownGood.toFixed(2)}. The checker cannot be trusted.`,
   );
   process.exit(2);
 }
 console.log(
-  `self-test ok: brand gold on white ${knownBad.toFixed(2)}:1 (fails AA as it must), black on white ${knownGood.toFixed(1)}:1`,
+  `self-test ok: a pale gold on white ${knownBad.toFixed(2)}:1 (fails AA as it must), black on white ${knownGood.toFixed(1)}:1`,
 );
 
-// ---- Brand variables must exist. ---------------------------------------------
-// src/lib/brand.ts defines the mark's colours as CSS variable REFERENCES
-// (MARK_COLOURS.return is "var(--color-gold-ink)"). Rename or drop one of those
-// tokens in the stylesheet and nothing fails: the variable resolves to nothing
-// and the stroke quietly disappears from the logo. That happened once, during a
-// redesign, and was caught only by a pixel diff. This makes it a hard failure.
-function missingBrandVars(brandSource, stylesheet) {
-  const wanted = [...new Set([...brandSource.matchAll(/var\((--[a-z-]+)\)/g)].map((m) => m[1]))];
-  const defined = new Set([...stylesheet.matchAll(/(--[a-z-]+)\s*:/g)].map((m) => m[1]));
-  return wanted.filter((name) => !defined.has(name));
+// ---- The brand colours in brand.ts must match the tokens in globals.css. -----
+// The mark's two colours exist twice: as plain values in src/lib/brand.ts (what
+// the logo, icons and social card draw with) and as tokens in the stylesheet
+// (what the page uses). If one is edited without the other the site quietly
+// carries two different blues. This makes that a hard failure.
+function brandMismatches(brandSource, stylesheet) {
+  const pairs = [
+    ["blue", "brand"],
+    ["indigo", "brand-deep"],
+    ["ink", "ink"],
+    ["paper", "paper"],
+    ["slate", "slate"],
+  ];
+  const out = [];
+  for (const [constName, tokenName] of pairs) {
+    const inBrand = brandSource.match(new RegExp(`\\b${constName}:\\s*"(#[0-9a-fA-F]{6})"`))?.[1];
+    const inCss = stylesheet.match(new RegExp(`--color-${tokenName}:\\s*(#[0-9a-fA-F]{6})`))?.[1];
+    if (!inBrand || !inCss) out.push(`${constName}/${tokenName}: not found in ${!inBrand ? "brand.ts" : "globals.css"}`);
+    else if (inBrand.toLowerCase() !== inCss.toLowerCase()) out.push(`${constName} ${inBrand} in brand.ts but --color-${tokenName} is ${inCss} in globals.css`);
+  }
+  return out;
 }
-// Self-test: a variable the stylesheet lacks MUST be reported.
-const probe = missingBrandVars('x: "var(--color-does-not-exist)"', "--color-gold: #fff;");
-if (probe.length !== 1 || probe[0] !== "--color-does-not-exist") {
-  console.error("SELF-TEST FAILED: the brand-variable guard did not detect a missing variable.");
+// Self-test: a mismatch MUST be reported, and a match must not be.
+const probeBad = brandMismatches('blue: "#2F7BE0", indigo: "#4B3FA7", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #000000; --color-brand-deep: #4b3fa7; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
+const probeGood = brandMismatches('blue: "#2F7BE0", indigo: "#4B3FA7", ink: "#0F1B2D", paper: "#F6F8FB", slate: "#46546A"', "--color-brand: #2f7be0; --color-brand-deep: #4b3fa7; --color-ink: #0f1b2d; --color-paper: #f6f8fb; --color-slate: #46546a;");
+if (probeBad.length !== 1 || probeGood.length !== 0) {
+  console.error("SELF-TEST FAILED: the brand-colour sync guard did not tell a mismatch from a match.");
   process.exit(2);
 }
 const BRAND = readFileSync(new URL("../src/lib/brand.ts", import.meta.url), "utf8");
-const missing = missingBrandVars(BRAND, CSS);
-if (missing.length > 0) {
-  console.error(`FAIL  brand.ts depends on CSS variables that globals.css does not define: ${missing.join(", ")}`);
-  console.error("      The mark would render with those strokes or fills missing.");
+const drift = brandMismatches(BRAND, CSS);
+if (drift.length > 0) {
+  for (const d of drift) console.error(`FAIL  brand colours out of sync: ${d}`);
   process.exit(1);
 }
-console.log("brand variables ok: every var(--...) that brand.ts reads is defined in globals.css");
+console.log("brand colours ok: brand.ts and globals.css agree");
+
+// ---- There must be no dark theme. --------------------------------------------
+// The site is light only. A prefers-color-scheme rule in the stylesheet would
+// bring a dark theme back for any visitor whose system is set to dark.
+if (/prefers-color-scheme\s*:\s*dark/.test(CSS.replace(/\/\*[\s\S]*?\*\//g, ""))) {
+  console.error("FAIL  globals.css contains a prefers-color-scheme: dark rule. The site is light only.");
+  process.exit(1);
+}
+console.log("light only ok: no prefers-color-scheme: dark rule in globals.css");
 
 // ---- Read the tokens. -------------------------------------------------------
 function tokens(block) {
@@ -83,14 +103,11 @@ function tokens(block) {
   return out;
 }
 const lightBlock = CSS.match(/:root\s*{([^}]*)}/)?.[1];
-const darkBlock = CSS.match(
-  /@media \(prefers-color-scheme: dark\)\s*{\s*:root\s*{([^}]*)}/,
-)?.[1];
-if (!lightBlock || !darkBlock) {
-  console.error("Could not find the light and dark :root blocks in globals.css.");
+if (!lightBlock) {
+  console.error("Could not find the :root block in globals.css.");
   process.exit(2);
 }
-const THEMES = { light: tokens(lightBlock), dark: tokens(darkBlock) };
+const THEMES = { light: tokens(lightBlock) };
 
 // [foreground token, background token, minimum ratio, what it is]
 const TEXT = 4.5;
@@ -128,20 +145,22 @@ for (const [theme, t] of Object.entries(THEMES)) {
   }
 }
 
-// The lockup is pinned to the brand's canonical values (BRAND_COLOURS) on a white field.
-for (const [fg, hex, min] of [
-  ["wordmark (brand ink)", "#16181d", 7],
-  ["descriptor (brand slate)", "#5c6068", TEXT],
-  ["mark return stroke (brand deep gold), graphic", "#7e6212", UI],
+// The logo, on the page background and on the white icon tile.
+for (const [fg, hex, bg, min] of [
+  ["wordmark (brand ink)", "#0f1b2d", "#f6f8fb", 7],
+  ["mark line (brand blue), graphic", "#2f7be0", "#f6f8fb", UI],
+  ["mark line (brand blue), graphic", "#2f7be0", "#ffffff", UI],
+  ["mark dot (brand indigo), graphic", "#4b3fa7", "#f6f8fb", UI],
+  ["mark dot (brand indigo), graphic", "#4b3fa7", "#ffffff", UI],
 ]) {
-  const r = ratio(hex, "#ffffff");
+  const r = ratio(hex, bg);
   const ok = r >= min;
   if (!ok) failures++;
-  console.log(`${ok ? "pass" : "FAIL"}  logo  ${r.toFixed(2).padStart(5)}:1 (need ${min})  ${fg} on its white plate`);
+  console.log(`${ok ? "pass" : "FAIL"}  logo  ${r.toFixed(2).padStart(5)}:1 (need ${min})  ${fg} on ${bg}`);
 }
 
 if (failures > 0) {
   console.error(`\n${failures} pairing(s) below threshold.`);
   process.exit(1);
 }
-console.log("\nAll pairings pass in both themes.");
+console.log("\nAll pairings pass.");

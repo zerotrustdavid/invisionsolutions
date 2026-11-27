@@ -28,18 +28,16 @@ function Header() {
         <Link
           href="/"
           onClick={() => setOpen(false)}
-          className="logo-plate shrink-0"
+          className="shrink-0"
         >
           {/* No aria-label: the accessible name is built from the visible
               lockup text, so what a voice-control user sees is what they can
               say. "home" is added for screen readers only. */}
-          {/* Row orientation with the subline: the company is Invision
-              Solutions, so the bar says so rather than just "Invision". */}
           <span className="hidden sm:inline-flex">
-            <LogoLockup size={20} orientation="row" />
+            <LogoLockup size={20} />
           </span>
           <span className="inline-flex sm:hidden">
-            <LogoLockup size={17} orientation="row" />
+            <LogoLockup size={17} />
           </span>
           <span className="sr-only">, home</span>
         </Link>

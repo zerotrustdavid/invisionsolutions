@@ -88,7 +88,7 @@ function SocialLinks({ className = "" }: { className?: string }) {
             rel="noopener noreferrer"
             aria-label={label}
             title={label}
-            className="inline-flex text-slate transition-colors hover:text-signal-gold"
+            className="inline-flex text-slate transition-colors hover:text-accent"
           >
             <Icon />
           </a>
