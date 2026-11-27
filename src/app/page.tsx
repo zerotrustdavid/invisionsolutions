@@ -8,7 +8,7 @@ import {
   Row,
   WIDTH,
 } from "@/components/ui";
-import { SERVICES, CASE_STUDIES, CERTIFICATIONS } from "@/lib/content";
+import { SERVICES, CASE_STUDIES, CERTIFICATIONS, TOOLS } from "@/lib/content";
 import { PAYRECKON_CALCULATORS, PAYRECKON_URL } from "@/lib/payreckon";
 import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
@@ -73,6 +73,9 @@ export default function Home() {
         <p className="t-body mt-6 max-w-[40rem]">
           Cloud architecture, DevSecOps, SIEM engineering and compliance from
           one person, so you are not coordinating four vendors.
+        </p>
+        <p className="t-small mt-4 max-w-[40rem]">
+          Tools I work with: {TOOLS.join(", ")}.
         </p>
         <div className="mt-12">
           <Rows>
