@@ -4,13 +4,13 @@ import {
   PrimaryButton,
   TextLink,
   ExternalPrimaryButton,
+  EmailLink,
   Rows,
   Row,
   WIDTH,
 } from "@/components/ui";
 import { SERVICES, CASE_STUDIES, CERTIFICATIONS } from "@/lib/content";
 import { PAYRECKON_CALCULATORS, PAYRECKON_URL } from "@/lib/payreckon";
-import { PUBLIC_CONTACT_ADDRESS } from "@/lib/mailboxes";
 
 /*
  * Everything in the letterhead below is already stated elsewhere on this site:
@@ -168,9 +168,7 @@ export default function Home() {
             Start a conversation
             <ArrowRight size={16} aria-hidden="true" />
           </PrimaryButton>
-          <a href={`mailto:${PUBLIC_CONTACT_ADDRESS}`} className="link font-sans text-[0.9375rem]">
-            {PUBLIC_CONTACT_ADDRESS}
-          </a>
+          <EmailLink className="font-sans text-[0.9375rem]" />
         </div>
       </Section>
     </>

@@ -59,6 +59,14 @@ theme, and it was the one the owner saw whenever their system was set to dark.)
 and text links for everything else. Links in running text are underlined, never
 told apart by colour alone.
 
+**The contact address** is a mailto link with an envelope icon (`EmailLink` in
+`ui.tsx`) wherever it stands on its own as a way to get in touch: the home page's
+closing line and the contact, enquiries and testimonials pages. Inside a sentence
+(`/services`, `/privacy`) and in the footer's list of text links it stays plain
+text, because an icon there would interrupt the reading or the list. The icon is
+decorative and hidden from assistive technology, so the link's name is just the
+address, and the underline sits under the text only.
+
 **Motion** is limited to colour and underline transitions, and respects
 `prefers-reduced-motion`.
 
