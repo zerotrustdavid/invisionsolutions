@@ -123,22 +123,12 @@ export const CASE_STUDIES: CaseStudy[] = [
 ];
 
 /**
- * These were a single list headed "Certified & Aligned". That put CrowdStrike
- * Falcon, Terraform and the rest under a word that claims a certification for
- * each, which this site does not state anywhere. They are now two lists with
- * two honest labels: what is certified, and what I work with (every tool named
- * here also appears in the service descriptions above).
+ * These were once a single list headed "Certified & Aligned", which put
+ * CrowdStrike Falcon, Terraform and the rest under a word that claims a
+ * certification for each, which this site does not state anywhere. Only the
+ * certifications are kept here. The tools are named in the service descriptions.
  */
 export const CERTIFICATIONS = [
   "AWS Certified Solutions Architect – Professional",
   "Microsoft Azure Fundamentals (AZ-900)",
-];
-
-export const TOOLS = [
-  "Terraform",
-  "GitHub Actions",
-  "Snyk",
-  "Splunk",
-  "Datadog",
-  "CrowdStrike Falcon",
 ];
