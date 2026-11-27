@@ -37,22 +37,23 @@ column (a ruled list, prose, a definition list, labelled rows), not from one
 repeated container.
 
 **Type.** Newsreader (serif, with an optical-size axis) for headings and prose;
-IBM Plex Sans for interface: navigation, labels, buttons, form fields. Space
-Grotesk is loaded for the wordmark and for nothing else. Labels are sentence
-case, not tracked capitals.
+IBM Plex Sans for interface: navigation, labels, buttons, form fields. Outfit is
+loaded for the wordmark and for nothing else. Labels are sentence case, not
+tracked capitals.
 
-**Colour.** Warm paper and warm near-black. The only chromatic colour is the
-brand gold, used two ways: `gold` as decoration, and `accent` wherever gold must
-be read as text or a link, because the brand gold alone is only 2.4:1 on paper.
-Names are roles (paper, ink, slate, faint, line, control, accent, danger), so a
-component never names a colour and a theme is a change of values in one file.
+**Colour.** Cool paper and a deep blue-black ink, with one chromatic family:
+blue. `accent` is the darker blue that is safe to read, used for links, focus
+and buttons. `brand` and `brand-deep` are the mark's blue and indigo; they pass
+only as graphics (3:1), so they are never used for text. Names are roles (paper,
+ink, slate, faint, line, control, accent, danger), so a component never names a
+colour and the palette is a change of values in one file.
 
-**Both themes are designed.** The dark theme is warm charcoal, not an
-inversion, and `color-scheme: light dark` is declared so the browser knows the
-page handles each. (The previous version was light only but was seen rendered
-dark in a browser, consistent with something force-darkening it. That could not
-be reproduced in the test environment, so this design does not claim to prevent
-it, only to look right when the dark scheme is genuinely requested.)
+**One theme, and it is light.** The site has no dark theme and must not get one
+back without being asked. `color-scheme: light` is declared so a visitor whose
+system is set to dark still gets a light page and light form controls, and
+nothing in the stylesheet varies with `prefers-color-scheme`. The owner has said
+twice that they do not want the site dark. (An earlier redesign shipped a dark
+theme, and it was the one the owner saw whenever their system was set to dark.)
 
 **Buttons** are square-cornered (3px), with one solid call to action per view
 and text links for everything else. Links in running text are underlined, never
@@ -63,18 +64,22 @@ told apart by colour alone.
 
 ## Constraints that outrank taste
 
-**The logo is one version.** No dark colourway, no inverted form. On the dark
-theme it sits on a white plate (`.logo-plate`), per the brand's own tile rule,
-and its colours are pinned inside that class to `BRAND_COLOURS` in
-`src/lib/brand.ts`. Its typeface is `font-wordmark`, which must never follow the
-site's display face.
+**The mark and the wordmark.** The mark is an open hexagon drawn as one line with
+a gap on one side, and a dot inside: the view in, and the one person you deal
+with. The wordmark is "Invision Solutions" in Outfit, beside it. The type is part
+of the logo, so `font-wordmark` must never follow the site's own faces.
 
-**`brand.ts` reads CSS variables by name.** `MARK_COLOURS.return` is
-`var(--color-gold-ink)`. Remove or rename that token and the return stroke
-silently vanishes from the logo. This happened during the redesign and was found
-by diffing the rendered logo, not by any build step. `npm run check:contrast`
-now fails if any variable `brand.ts` reads is undefined, and it has been shown to
-fail on the exact original mistake.
+**The brand colours exist twice, and must agree.** `src/lib/brand.ts` holds them
+as plain values (what the logo, icons and social card draw with) and
+`globals.css` holds them as tokens (what the page uses). `npm run check:contrast`
+fails if they drift apart, if any text or control pairing misses WCAG AA, and if a
+`prefers-color-scheme: dark` rule appears in the stylesheet. Each guard has been
+shown to fail on the fault it exists for.
+
+**Icons.** The favicon and the home-screen icon put the mark on a white tile with
+a heavier line, because they are read at 16 to 32px and the indigo dot would sink
+on a dark tab strip. There is no public page of brand files, and none should be
+added without being asked.
 
 **Case study figures, outcomes and sector labels are not design material.** They
 are published claims about client results, and whether they have been verified is
@@ -92,9 +97,9 @@ statements over slogans.
 A visual judgement is not enough for these, because each has already been wrong
 once while looking fine:
 
-- `npm run check:contrast`: every text and control pairing in both themes, plus the brand-variable guard
-- The rendered logo's resolved colours, font and geometry against the brand spec, in both themes
-- Axe (WCAG 2.2 AA and best practice) on every page at 390px and 1440px, both themes
+- `npm run check:contrast`: every text and control pairing, the brand-colour sync between `brand.ts` and the stylesheet, and the absence of any dark-theme rule
+- The rendered logo's resolved colours, font and size against the brand spec, with the system set to light and to dark: the page and the logo must be identical
+- Axe (WCAG 2.2 AA and best practice) on every page at 390px and 1440px, with the system set to light and to dark
 - No horizontal scroll at 320, 390, 768 and 1440px
 - Every text block visible with JavaScript disabled
 - The form's request to `/api/enquiry`, its payload, the honeypot, and that success is shown only when the route says `ok: true` (including a 200 without it), on all three forms

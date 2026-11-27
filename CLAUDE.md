@@ -49,16 +49,16 @@ Run it after touching `src/lib/enquiry.ts`.
 ## Design
 
 `DESIGN.md` records the design system and the reasons for it. Read it before
-changing how the site looks. Two things in it are easy to break and give no
-build error when broken:
+changing how the site looks. Three things in it are easy to break:
 
-- **The logo reads CSS variables by name.** `src/lib/brand.ts` defines the mark's
-  colours as `var(--color-gold-ink)` and friends. Remove or rename one of those
-  tokens in `globals.css` and a stroke silently disappears from the logo.
-  `npm run check:contrast` fails if any variable `brand.ts` reads is undefined.
-- **The lockup is pinned to the brand's own colours** inside `.logo-plate`, and
-  its typeface is `font-wordmark`. Neither follows the site's palette or its
-  display face, because the mark is one version with no variants.
+- **The site is light only.** No dark theme, and no `prefers-color-scheme: dark`
+  rule in `globals.css`. The owner has said they do not want it dark.
+  `npm run check:contrast` fails if one appears.
+- **The brand colours exist twice**: as plain values in `src/lib/brand.ts` and as
+  tokens in `globals.css`. They must match; `npm run check:contrast` fails if
+  they drift apart.
+- **The wordmark's typeface is `font-wordmark`** (Outfit). It must not follow the
+  site's own faces, because the type is part of the logo.
 
 Do not edit case study figures, outcomes or sector labels as part of a design
 change. They are published claims, not design material.

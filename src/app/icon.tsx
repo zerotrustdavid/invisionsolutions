@@ -1,50 +1,30 @@
 import { ImageResponse } from "next/og";
-import { ART, BRAND_COLOURS, CLOUD_ARC, RETURN_ARC, STROKE, TILE } from "@/lib/brand";
+import { BRAND_COLOURS, DOOR_PATH, DOT, DOT_ICON_R, GRID, STROKE_ICON, TILE } from "@/lib/brand";
 
 export const size = { width: 32, height: 32 };
 export const contentType = "image/png";
 
 /**
- * Favicon. The same mark as everywhere else — gold line, deep-gold return, on
- * a white tile. The white field is what keeps it visible against a dark tab
- * strip; the artwork itself is not substituted for a heavier one at this size.
+ * Favicon: the mark on a white tile, with a heavier line than the logo because
+ * it is read at 16 to 32px. The white field keeps it legible on a dark tab
+ * strip, where the indigo dot would otherwise sink.
  */
 export default function Icon() {
-  const box = 100;
-  const w = box * TILE.fillRatio;
-  const s = w / ART.width;
-  const h = ART.height * s;
-
+  const scale = TILE.fillRatio;
+  const offset = (GRID - GRID * scale) / 2;
   return new ImageResponse(
     (
-      <svg width={32} height={32} viewBox={`0 0 ${box} ${box}`} fill="none">
-        <rect
-          width={box}
-          height={box}
-          rx={box * TILE.radiusRatio}
-          fill={BRAND_COLOURS.paper}
-        />
-        <g
-          transform={`translate(${(box - w) / 2 - ART.x * s} ${
-            (box - h) / 2 - ART.y * s
-          }) scale(${s})`}
-        >
+      <svg width={32} height={32} viewBox={`0 0 ${GRID} ${GRID}`} fill="none">
+        <rect width={GRID} height={GRID} rx={GRID * TILE.radiusRatio} fill={BRAND_COLOURS.white} />
+        <g transform={`translate(${offset} ${offset}) scale(${scale})`}>
           <path
-            d={CLOUD_ARC}
-            stroke={BRAND_COLOURS.gold}
-            strokeWidth={STROKE}
-            fill="none"
+            d={DOOR_PATH}
+            stroke={BRAND_COLOURS.blue}
+            strokeWidth={STROKE_ICON}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <path
-            d={RETURN_ARC}
-            stroke={BRAND_COLOURS.goldInk}
-            strokeWidth={STROKE}
-            fill="none"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
+          <circle cx={DOT.cx} cy={DOT.cy} r={DOT_ICON_R} fill={BRAND_COLOURS.indigo} />
         </g>
       </svg>
     ),
