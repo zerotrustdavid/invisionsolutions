@@ -18,6 +18,7 @@ Open [http://localhost:3000](http://localhost:3000).
 | `npm run start` | Serve the production build |
 | `npm run lint` | ESLint |
 | `npm run check:install-scripts` | Fail if a dependency ships an install script not on the allowlist |
+| `npm run check:contrast` | Fail if any text or control pairing misses WCAG AA in either theme, or if the brand's CSS variables go missing |
 
 ## Environment variables
 
@@ -56,6 +57,8 @@ There is **one version and no variants**. No dark colourway, no inverted form, a
 
 Geometry and colour roles live in `src/lib/brand.ts`, which is the single source for the mark. `src/components/logo.tsx`, `src/app/icon.tsx` and `src/app/opengraph-image.tsx` all draw from it.
 
+`brand.ts` reads the mark's colours as CSS variables (`var(--color-gold-ink)` and others). Renaming or removing one of those tokens in `globals.css` does not fail a build: a stroke simply disappears from the logo. `npm run check:contrast` fails if any variable `brand.ts` reads is undefined. The lockup is pinned to the brand's own colours inside `.logo-plate`, so changing the site's palette or theme cannot recolour it.
+
 The mark and the wordmark are trademarked material. See `LICENSE.md`.
 
 There is no public brand-assets page and no downloadable logo files. There was a `/brand` route serving 15 generated files from `public/brand/`, produced by `scripts/generate-brand-assets.mjs`; the page, the files and the generator have all been removed. Send anyone who needs artwork a file directly.
@@ -78,11 +81,13 @@ HSTS is sent with `max-age` and `includeSubDomains` but deliberately **without `
 
 Routes, one folder per page under `src/app/`:
 
-`/` · `/services` · `/approach` · `/case-studies` · `/testimonials` · `/enquiries` · `/contact` · `/payreckon`
+`/` · `/services` · `/approach` · `/case-studies` · `/testimonials` · `/enquiries` · `/contact` · `/payreckon` · `/privacy`
+
+Also served: `/sitemap.xml`, `/robots.txt` and `/.well-known/security.txt`. The last carries an `Expires` date computed at build time, 300 days out, so every deployment refreshes it. It lapses only if the site goes about ten months without a redeploy, and tooling treats an expired security.txt as absent.
 
 - `src/app/icon.tsx`, `src/app/opengraph-image.tsx`: favicon and social card, generated at build time
-- `src/app/globals.css`: design tokens (colour, font, focus states) as CSS custom properties, mapped into Tailwind's `@theme`
-- `src/components/*`: header, footer, logo, surface primitives, verification-ledger motif, scroll-reveal wrapper, social icons, Web3Forms form
+- `src/app/globals.css`: design tokens for both themes, typographic roles, and the logo's pinned colours. See `DESIGN.md`
+- `src/components/*`: header, footer, logo, page furniture (`ui.tsx`), social icons, Web3Forms form
 - `src/lib/brand.ts`: mark geometry, colour roles, wordmark metrics
 - `src/lib/content.ts`: services and case study copy, shared between the Home teasers and the full pages
 - `src/lib/mailboxes.ts`: the single Web3Forms access key and the addresses the site publishes
@@ -93,7 +98,8 @@ Routes, one folder per page under `src/app/`:
 
 - `.gitleaks.toml` configures the secret scan. It carries a deliberate backstop rule matching any bare UUID literal, because a UUID assigned to an innocuously named constant will not match an identifier-based rule, and bare UUIDs carry too little entropy for generic detectors to flag on their own.
 - `scripts/check-install-scripts.mjs` fails the build on any dependency install script not on a reasoned allowlist, where each entry records why it was allowed.
-- `.github/workflows/ci.yml` runs lint, build, the install-script check, and the secret scan on pull requests. It requests `contents: read`, references no secrets, installs with `npm ci --ignore-scripts`, and fetches gitleaks by pinned version verified against a pinned SHA256 rather than trusting a third-party action.
+- `scripts/check-contrast.mjs` reads the real tokens from `globals.css` and checks every pairing in both themes. It begins with a self-test (brand gold on white must fail, black on white must pass), so a pass means something.
+- `.github/workflows/ci.yml` runs lint, the contrast check, build, the install-script check, and the secret scan on pull requests. It requests `contents: read`, references no secrets, installs with `npm ci --ignore-scripts`, and fetches gitleaks by pinned version verified against a pinned SHA256 rather than trusting a third-party action.
 
 ## Licence
 
